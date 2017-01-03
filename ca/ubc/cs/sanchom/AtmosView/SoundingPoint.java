@@ -157,6 +157,6 @@ public class SoundingPoint implements Serializable, Comparable
 	 */
 	public String toString()
 	{	
-		return m_millibars + "mb, " + m_metres + "m, " + m_temperature + "¡C, " + m_dewpoint + "¡C, " + m_direction + "¡, " + m_speed;
+		return m_millibars + "mb, " + m_metres + "m, " + m_temperature + " C, " + m_dewpoint + " C, " + m_direction + " degrees, " + m_speed;
 	}
 }
