@@ -1,0 +1,19 @@
+java_library(
+    name = "lib",
+    srcs = glob(
+        ["*.java"],
+        exclude = ["AtmosView.java"],
+    ),
+    deps = [
+        "@maven//:com_toedter_jcalendar",
+    ],
+)
+
+java_binary(
+    name = "AtmosView",
+    srcs = ["AtmosView.java"],
+    main_class = "ca.ubc.cs.sanchom.AtmosView.AtmosView",
+    deps = [
+        ":lib",
+    ],
+)
