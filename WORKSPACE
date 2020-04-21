@@ -19,15 +19,12 @@ JUNIT_PLATFORM_CONSOLE_VERSION = "1.6.2"
 
 maven_install(
     artifacts = [
+        "com.google.guava:guava:29.0-jre",
         "com.toedter:jcalendar:1.4",  # https://mvnrepository.com/artifact/com.toedter/jcalendar
         "org.junit.jupiter:junit-jupiter-api:%s" % JUNIT_JUPITER_VERSION,
         "org.junit.jupiter:junit-jupiter-engine:%s" % JUNIT_JUPITER_VERSION,
         "org.junit.jupiter:junit-jupiter-params:%s" % JUNIT_JUPITER_VERSION,
         "org.junit.platform:junit-platform-console:%s" % JUNIT_PLATFORM_CONSOLE_VERSION,
-
-        # "junit:junit:4.12",
-        # "androidx.test.espresso:espresso-core:3.1.1",
-        # "org.hamcrest:hamcrest-library:1.3",
     ],
     repositories = [
         "https://jcenter.bintray.com/",

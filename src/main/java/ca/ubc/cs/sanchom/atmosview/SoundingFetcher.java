@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A singleton fetcher for data from http://weather.uwyo.edu/upperair/naconf.html.
@@ -19,8 +21,15 @@ import java.util.TreeMap;
  * @author Sancho McCann
  */
 public class SoundingFetcher {
+
+  // Example:
+  //   <AREA COORDS="457,53,5" SHAPE="CIRCLE" HREF="javascript:g('04270')" title="04270
+  // Narsarsuaq (BGBW)">
+  private static final Pattern SOUNDING_STATION_REGEX =
+      Pattern.compile("<AREA [^>]*\\btitle=\"([^\"]*)\".*>");
+
   // /< The singleton instance
-  private static SoundingFetcher m_instance = null;
+  private static SoundingFetcher instance = null;
 
   private static TreeMap<String, String> stationMap; // /< Map of station ids to station names
 
@@ -53,16 +62,13 @@ public class SoundingFetcher {
       String inputLine = null;
 
       while ((inputLine = in.readLine()) != null) {
-        if (inputLine.indexOf("return s('") != -1) {
-          int end = inputLine.lastIndexOf("'");
-          int start = inputLine.lastIndexOf("'", end - 1) + 1;
-          if ((end - start) > 0) {
-            String stationString = inputLine.substring(start, end);
-            String stationID = stationString.substring(0, stationString.indexOf(" "));
-            String stationName = stationString.substring(stationString.indexOf(" ") + 1);
+        Matcher matcher = SOUNDING_STATION_REGEX.matcher(inputLine);
+        if (matcher.find()) {
+          String stationString = matcher.group(1);
+          String stationID = stationString.substring(0, stationString.indexOf(" "));
+          String stationName = stationString.substring(stationString.indexOf(" ") + 1);
 
-            stationMap.put(stationName, stationID);
-          }
+          stationMap.put(stationName, stationID);
         }
       }
 
@@ -83,10 +89,10 @@ public class SoundingFetcher {
    * @throws an IOException if the constructor fails due to connection problems
    */
   public static SoundingFetcher getInstance() throws IOException {
-    if (m_instance == null) {
-      m_instance = new SoundingFetcher();
+    if (instance == null) {
+      instance = new SoundingFetcher();
     }
-    return m_instance;
+    return instance;
   }
 
   /**

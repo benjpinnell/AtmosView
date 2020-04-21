@@ -8,12 +8,13 @@ java_library(
         "//src/test/java/ca/ubc/cs/sanchom/atmosview:__subpackages__",
     ],
     deps = [
+        "@maven//:com_google_guava_guava",
         "@maven//:com_toedter_jcalendar",
     ],
 )
 
 java_binary(
-    name = "AtmosView",
+    name = "atmosview",
     srcs = ["AtmosView.java"],
     main_class = "ca.ubc.cs.sanchom.atmosview.AtmosView",
     deps = [
