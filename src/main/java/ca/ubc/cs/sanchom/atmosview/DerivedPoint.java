@@ -9,8 +9,8 @@ package ca.ubc.cs.sanchom.atmosview;
  */
 public class DerivedPoint {
 
-  private static final double STRATUS_RH_THRESHOLD =
-      99; /// < Threshold for the indication of stratus cloud given humidity.
+  /// < Threshold for the indication of stratus cloud given humidity.
+  private static final double STRATUS_RH_THRESHOLD = 99;
 
   private double temperature; // /< The temperature of this interpolation in degrees celcius
   private double dewpoint; // /< The dewpoint of the interpolation
@@ -28,10 +28,10 @@ public class DerivedPoint {
       stratusCloud; /// < Boolean flag indicating if the relative humidity is such to expect cloud.
   private double
       liftedParcelTemp; /// < The temperature of a parcel of air cooled adiabatically from the LCL
-                        // upward
+  // upward
   private double
       liftedDiff; /// < The difference between the environmental temperature and the lifted parcel
-                  // temperature.
+  // temperature.
 
   public DerivedPoint(
       double height,

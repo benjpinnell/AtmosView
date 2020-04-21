@@ -44,7 +44,8 @@ public class MainFrame extends JFrame {
 
   private JList stationJList = null;
 
-  private Vector<String> stationIDs = null; //  @jve:decl-index=0:
+  //  @jve:decl-index=0:
+  private Vector<String> stationIDs = null;
 
   private JButton getDataButton = null;
 
@@ -64,7 +65,8 @@ public class MainFrame extends JFrame {
 
   private JSplitPane SplitPane = null;
 
-  private ButtonGroup HourRadios = null; //  @jve:decl-index=0:
+  //  @jve:decl-index=0:
+  private ButtonGroup HourRadios = null;
 
   private JRadioButton zeroButton = null;
 

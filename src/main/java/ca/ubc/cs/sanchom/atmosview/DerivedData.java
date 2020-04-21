@@ -11,56 +11,56 @@ import java.util.Collections;
  */
 public class DerivedData {
 
-  private static final int SAMPLE_STEP = 10; // /< The interpolation resolution
+  // /< The interpolation resolution
+  private static final int SAMPLE_STEP = 10;
 
-  /** @name Physical constants */
-  // @{
-  private static final double PRESSURE_COEFFICIENT =
-      6.1078; /// < Coefficient in mixing ratio computations.
-  // private final static double GAS_CONSTANT = 461;
-  // private final static double SPECIFIC_HEAT = 1004; ///< Specific heat of water in J/kg/degreeC
-  private static final double SPECIFIC_HEAT = 1463; // /< Specific heat of water in J/kg/degreeC
-  private static final double LATENT_HEAT = 1800; // /< Latent heat of condensation in J/g
+  // Physical constants
+  /// < Coefficient in mixing ratio computations.
+  private static final double PRESSURE_COEFFICIENT = 6.1078;
+  // /< Specific heat of water in J/kg/degreeC
+  private static final double SPECIFIC_HEAT = 1463;
+  // /< Latent heat of condensation in J/g
+  private static final double LATENT_HEAT = 1800;
   private static final double KELVIN_CONVERSION = 273.15;
-  // @}
 
-  private SoundingData m_soundingData = null;
-  private ArrayList<DerivedPoint> m_derivedData = null;
+  private SoundingData soundingData = null;
+  private ArrayList<DerivedPoint> derivedData = null;
 
-  /**
-   * @name Singularly derived values These variables are derived values that indicate a single point
-   *     in the vertical profile.
+  /*
+   * Singularly derived values These variables are derived values that indicate a single point in
+   * the vertical profile.
    */
-  // @{
-  private double CCL = Double.NaN; // /< The convective condensation level in metres
+  // /< The convective condensation level in metres
+  private double ccl = Double.NaN;
 
-  private double CCL_pressure =
-      Double.NaN; // /< The pressure level of the convective condensation level in millibars
-  private double LCL = Double.NaN; // /< The lifted condensation level in metres
-  private double LCL_pressure =
-      Double.NaN; // /< The pressure level of the lifted condensation level in millibars
-  private double LCL_temperature =
-      Double.NaN; // /< The temperature at the lifted condensation level in degrees celcius
-  private double LFC = Double.NaN; // /< The level of free convection in metres
-  private double LFC_pressure =
-      Double.NaN; // /< The pressure at the level of free convection in millibars
-  private double EL = Double.NaN; // /< The equilibriam level in metres
-  private double convectiveTemperature =
-      Double
-          .NaN; /// < The temperature in degrees celcius to which a surface parcel must be raised to
-                // in order for it to rise convectively to the convective condensation level
-  private double convectiveTemperatureRise =
-      Double
-          .NaN; /// < The difference between the sampled surface temperature and the convective
-                // temperature
-  private double CAPE = 0;
-  private double LIFTED_INDEX = Double.NaN;
-  private double KINX = Double.NaN;
-  private double CROSS_TOTALS_INDEX = Double.NaN;
-  private double VERTICAL_TOTALS_INDEX = Double.NaN;
-  private double TOTAL_TOTALS_INDEX = Double.NaN;
-  private double SWEAT = Double.NaN;
-  private double BRCH = Double.NaN;
+  // /< The pressure level of the convective condensation level in millibars
+  private double cclPressure = Double.NaN;
+  // /< The lifted condensation level in metres
+  private double lcl = Double.NaN;
+  // /< The pressure level of the lifted condensation level in millibars
+  private double lclPressure = Double.NaN;
+  // /< The temperature at the lifted condensation level in degrees celcius
+  private double lclTemperature = Double.NaN;
+  // /< The level of free convection in metres
+  private double lfc = Double.NaN;
+  // /< The pressure at the level of free convection in millibars
+  private double lfcPressure = Double.NaN;
+  // /< The equilibriam level in metres
+  private double el = Double.NaN;
+  /// < The temperature in degrees celcius to which a surface parcel must be raised to
+  private double convectiveTemperature = Double.NaN;
+  // in order for it to rise convectively to the convective condensation level
+  // / < The difference between the sampled surface temperature and the convective
+  private double convectiveTemperatureRise = Double.NaN;
+  // temperature
+  private double cape = 0;
+  private double liftedIndex = Double.NaN;
+  private double kinx = Double.NaN;
+  private double crossTotalsIndex = Double.NaN;
+  private double verticalTotalsIndex = Double.NaN;
+  private double totalTotalsIndex = Double.NaN;
+  private double sweat = Double.NaN;
+  private double brch = Double.NaN;
 
   // @}
 
@@ -98,13 +98,7 @@ public class DerivedData {
       double initialPressure, double initialTemp, double queryPressure) {
     return toCelcius(toKelvin(initialTemp) * Math.pow(queryPressure / initialPressure, 0.28571));
   }
-  //
-  //	public static double getDryAdiabaticCooledTemperature_KM(double initialHeight, double
-  // initialTemp, double queryHeight)
-  //	{
-  //		return initialTemp - 9.8 * (queryHeight - initialHeight) / 1000f;
-  //	}
-  //
+
   public static double toKelvin(double celcius) {
     return celcius + KELVIN_CONVERSION;
   }
@@ -115,7 +109,7 @@ public class DerivedData {
 
   /**
    * Returns a forward difference approximation of the derivative of mixing ratio with respect to
-   * temperature
+   * temperature.
    *
    * @param p the pressure level in millibars of the estimate
    * @param t the temperature of the estimate in degrees celcius
@@ -123,23 +117,25 @@ public class DerivedData {
   private double getDMixingDTemp(double p, double t) {
     double differential = Math.pow(1, -10);
 
-    double e_sat_a = getVapourPressure(t);
-    double e_sat_b = getVapourPressure(t + differential);
-    double mix_a = getMixingRatio(p, e_sat_a);
-    double mix_b = getMixingRatio(p, e_sat_b);
+    double satA = getVapourPressure(t);
+    double satB = getVapourPressure(t + differential);
+    double mixA = getMixingRatio(p, satA);
+    double mixB = getMixingRatio(p, satB);
 
-    return (mix_b - mix_a) / differential;
+    return (mixB - mixA) / differential;
   }
 
   // TODO: handle null and empty error cases
-  @SuppressWarnings("unchecked")
+  // @SuppressWarnings("unchecked")
+
+  /** Create derived data. */
   public DerivedData(SoundingData soundingData) {
-    m_soundingData = (SoundingData) soundingData.clone();
-    m_derivedData = new ArrayList<DerivedPoint>();
+    this.soundingData = (SoundingData) soundingData.clone();
+    this.derivedData = new ArrayList<DerivedPoint>();
 
     DerivedPoint surfaceData = null;
-    if (m_soundingData.size() > 0) {
-      SoundingPoint p = m_soundingData.get(0);
+    if (this.soundingData.size() > 0) {
+      SoundingPoint p = this.soundingData.get(0);
       surfaceData =
           new DerivedPoint(
               p.getMetres(),
@@ -159,36 +155,36 @@ public class DerivedData {
     DerivedPoint previousSample = null;
 
     for (int sampleHeight = (int) Math.ceil(surfaceData.getSampleHeight());
-        sampleHeight < m_soundingData.get(m_soundingData.size() - 1).getMetres();
+        sampleHeight < this.soundingData.get(this.soundingData.size() - 1).getMetres();
         sampleHeight += SAMPLE_STEP) {
       DerivedPoint currentSample = getInterpolation(sampleHeight);
 
-      // If we're already tracking the lifted parcel above the LCL, update it.
-      if (!Double.isNaN(LCL)) {
-        double dMixingdTemp = getDMixingDTemp(currentSample.getPressure(), liftedParcelTemp);
+      // If we're already tracking the lifted parcel above the lcl, update it.
+      if (!Double.isNaN(lcl)) {
+        double mixingDTemp = getDMixingDTemp(currentSample.getPressure(), liftedParcelTemp);
 
         // This is how much the parcel would have cooled if it were dry
         double cooled =
             getDryAdiabaticCooledTemperature(
                 previousSample.getPressure(), liftedParcelTemp, currentSample.getPressure());
-        double DALR = liftedParcelTemp - cooled;
+        double dalr = liftedParcelTemp - cooled;
         // This adjusts for the latent heat released during condensation since the parcel is
         // saturated
-        double MALR = DALR / (1 + (LATENT_HEAT / SPECIFIC_HEAT) * dMixingdTemp);
-        liftedParcelTemp = liftedParcelTemp - MALR;
+        double malr = dalr / (1 + (LATENT_HEAT / SPECIFIC_HEAT) * mixingDTemp);
+        liftedParcelTemp = liftedParcelTemp - malr;
       }
 
-      if (!Double.isNaN(LFC)
-          && Double.isNaN(EL)
+      if (!Double.isNaN(lfc)
+          && Double.isNaN(el)
           && liftedParcelTemp <= currentSample.getTemperature()) {
-        EL = currentSample.getSampleHeight();
+        el = currentSample.getSampleHeight();
       }
 
       // If we've found the LFC, but not the EL, accumulate the CAPE
-      if (!Double.isNaN(LFC)
-          && Double.isNaN(EL)
+      if (!Double.isNaN(lfc)
+          && Double.isNaN(el)
           && liftedParcelTemp > currentSample.getTemperature()) {
-        CAPE +=
+        cape +=
             9.8
                 * SAMPLE_STEP
                 * (toKelvin(liftedParcelTemp) - toKelvin(currentSample.getTemperature()))
@@ -196,10 +192,10 @@ public class DerivedData {
       }
 
       // Will only pass once to set the CCL
-      if (Double.isNaN(CCL)
+      if (Double.isNaN(ccl)
           && pblAverage.getVapourPressure() >= getVapourPressure(currentSample.getTemperature())) {
-        CCL = currentSample.getSampleHeight();
-        CCL_pressure = currentSample.getPressure();
+        ccl = currentSample.getSampleHeight();
+        cclPressure = currentSample.getPressure();
 
         convectiveTemperature =
             getDryAdiabaticCooledTemperature(
@@ -209,16 +205,16 @@ public class DerivedData {
       }
 
       // Will only get to inner loop once, to set the LCL
-      if (Double.isNaN(LCL)) {
+      if (Double.isNaN(lcl)) {
         liftedParcelTemp =
             getDryAdiabaticCooledTemperature(
                 pblAverage.getPressure(), pblAverage.getTemperature(), currentSample.getPressure());
         double forcedAdiabaticSaturationPressure = getVapourPressure(liftedParcelTemp);
 
         if (pblAverage.getVapourPressure() >= forcedAdiabaticSaturationPressure) {
-          LCL = sampleHeight;
-          LCL_pressure = currentSample.getPressure();
-          LCL_temperature = currentSample.getTemperature();
+          lcl = sampleHeight;
+          lclPressure = currentSample.getPressure();
+          lclTemperature = currentSample.getTemperature();
         }
       }
 
@@ -227,15 +223,15 @@ public class DerivedData {
       // Now, if we haven't found the LFC, but we're tracking the lifted temperature (above the
       // LCL),
       // check to see if this is the LFC
-      if (Double.isNaN(LFC)
-          && !Double.isNaN(LCL)
+      if (Double.isNaN(lfc)
+          && !Double.isNaN(lcl)
           && currentSample.getLiftedParcelTemp() > currentSample.getTemperature()) {
-        LFC = currentSample.getSampleHeight();
-        LFC_pressure = currentSample.getPressure();
+        lfc = currentSample.getSampleHeight();
+        lfcPressure = currentSample.getPressure();
       }
 
       previousSample = currentSample;
-      m_derivedData.add(currentSample);
+      this.derivedData.add(currentSample);
     }
 
     // get some indices
@@ -243,17 +239,17 @@ public class DerivedData {
     DerivedPoint data700 = getDataFromPressureLevel(700);
     DerivedPoint data850 = getDataFromPressureLevel(850);
 
-    LIFTED_INDEX = data500.getTemperature() - data500.getLiftedParcelTemp();
-    KINX =
+    liftedIndex = data500.getTemperature() - data500.getLiftedParcelTemp();
+    kinx =
         (data850.getTemperature() - data500.getTemperature())
             + data850.getDewpoint()
             - (data700.getTemperature() - data700.getDewpoint());
-    CROSS_TOTALS_INDEX = data850.getDewpoint() - data500.getTemperature();
-    VERTICAL_TOTALS_INDEX = data850.getTemperature() - data500.getTemperature();
-    TOTAL_TOTALS_INDEX = CROSS_TOTALS_INDEX + VERTICAL_TOTALS_INDEX;
-    SWEAT =
+    crossTotalsIndex = data850.getDewpoint() - data500.getTemperature();
+    verticalTotalsIndex = data850.getTemperature() - data500.getTemperature();
+    totalTotalsIndex = crossTotalsIndex + verticalTotalsIndex;
+    sweat =
         12 * data850.getTemperature()
-            + 20 * Math.max(TOTAL_TOTALS_INDEX - 49, 0)
+            + 20 * Math.max(totalTotalsIndex - 49, 0)
             + 2 * data850.getSpeed()
             + data500.getSpeed()
             + 125
@@ -288,22 +284,23 @@ public class DerivedData {
     double u2 = u2Accumulator / (float) numAccumulated;
     double v2 = v2Accumulator / (float) numAccumulated;
 
-    BRCH = CAPE / (0.5 * ((u2 - u1) * (u2 - u1) + (v2 - v1) * (v2 - v1)));
+    brch = cape / (0.5 * ((u2 - u1) * (u2 - u1) + (v2 - v1) * (v2 - v1)));
   }
 
+  /** Return the data for the specified height. */
   public DerivedPoint getDataFromHeight(double targetHeight) {
     DerivedPoint closestPoint = null;
 
     int bottomIndex = 0;
-    int topIndex = m_derivedData.size() - 1;
+    int topIndex = this.derivedData.size() - 1;
 
     while (closestPoint == null && bottomIndex + 1 < topIndex) {
 
       int midIndex = (bottomIndex + topIndex) / 2;
-      double midHeight = m_derivedData.get(midIndex).getSampleHeight();
+      double midHeight = this.derivedData.get(midIndex).getSampleHeight();
 
       if (targetHeight == midHeight) {
-        closestPoint = m_derivedData.get(midIndex);
+        closestPoint = this.derivedData.get(midIndex);
       }
 
       // the highest millibars are stored closer to the zero index
@@ -315,25 +312,26 @@ public class DerivedData {
     }
 
     if (bottomIndex + 1 >= topIndex) {
-      closestPoint = m_derivedData.get(bottomIndex);
+      closestPoint = this.derivedData.get(bottomIndex);
     }
 
     return closestPoint;
   }
 
+  /** Return the data for the specified pressure level. */
   public DerivedPoint getDataFromPressureLevel(double targetMillibars) {
     DerivedPoint closestPoint = null;
 
     int bottomIndex = 0;
-    int topIndex = m_derivedData.size() - 1;
+    int topIndex = this.derivedData.size() - 1;
 
     while (closestPoint == null && bottomIndex + 1 < topIndex) {
 
       int midIndex = (bottomIndex + topIndex) / 2;
-      double midPressure = m_derivedData.get(midIndex).getPressure();
+      double midPressure = this.derivedData.get(midIndex).getPressure();
 
       if (targetMillibars == midPressure) {
-        closestPoint = m_derivedData.get(midIndex);
+        closestPoint = this.derivedData.get(midIndex);
       }
 
       // the highest millibars are stored closer to the zero index
@@ -345,7 +343,7 @@ public class DerivedData {
     }
 
     if (bottomIndex + 1 >= topIndex) {
-      closestPoint = m_derivedData.get(bottomIndex);
+      closestPoint = this.derivedData.get(bottomIndex);
     }
 
     return closestPoint;
@@ -384,7 +382,7 @@ public class DerivedData {
     SoundingPoint dummy =
         new SoundingPoint(Double.NaN, sampleHeight, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     int index =
-        Collections.<SoundingPoint>binarySearch(m_soundingData, dummy, (a, b) -> a.compareTo(b));
+        Collections.<SoundingPoint>binarySearch(this.soundingData, dummy, (a, b) -> a.compareTo(b));
     double interpolatedTemp;
     double interpolatedDew;
     double interpolatedPressure;
@@ -392,7 +390,7 @@ public class DerivedData {
     double interpolatedSpeed;
     if (index >= 0) {
       // No interpolation needed
-      SoundingPoint a = m_soundingData.get(index);
+      SoundingPoint a = this.soundingData.get(index);
       interpolatedTemp = a.getTemperature();
       interpolatedDew = a.getDewpoint();
       interpolatedPressure = a.getMillibars();
@@ -402,16 +400,16 @@ public class DerivedData {
       // Interpolation needed
       int insertPoint = -index - 1;
       // Guaranteed to be in bounds by construction of the loop
-      SoundingPoint a = m_soundingData.get(insertPoint - 1);
-      SoundingPoint b = m_soundingData.get(insertPoint);
+      SoundingPoint a = this.soundingData.get(insertPoint - 1);
+      SoundingPoint b = this.soundingData.get(insertPoint);
 
       double diff = Math.abs(b.getMetres() - a.getMetres());
-      double aWeight = 1 - Math.abs(sampleHeight - a.getMetres()) / diff;
-      double bWeight = 1 - aWeight;
+      double weightA = 1 - Math.abs(sampleHeight - a.getMetres()) / diff;
+      double weightB = 1 - weightA;
 
-      interpolatedTemp = aWeight * a.getTemperature() + bWeight * b.getTemperature();
-      interpolatedDew = aWeight * a.getDewpoint() + bWeight * b.getDewpoint();
-      interpolatedPressure = aWeight * a.getMillibars() + bWeight * b.getMillibars();
+      interpolatedTemp = weightA * a.getTemperature() + weightB * b.getTemperature();
+      interpolatedDew = weightA * a.getDewpoint() + weightB * b.getDewpoint();
+      interpolatedPressure = weightA * a.getMillibars() + weightB * b.getMillibars();
 
       // Interpolate direction: This isn't necessarily valid to do
 
@@ -422,11 +420,11 @@ public class DerivedData {
       if (a.getDirection() < b.getDirection()) {
         smallestDirection = a.getDirection();
         largestDirection = b.getDirection();
-        smallWeight = aWeight;
+        smallWeight = weightA;
       } else {
         smallestDirection = b.getDirection();
         largestDirection = a.getDirection();
-        smallWeight = bWeight;
+        smallWeight = weightB;
       }
 
       double cwFromLargest = smallestDirection - largestDirection;
@@ -448,7 +446,7 @@ public class DerivedData {
         }
       }
 
-      interpolatedSpeed = aWeight * a.getSpeed() + bWeight * b.getSpeed();
+      interpolatedSpeed = weightA * a.getSpeed() + weightB * b.getSpeed();
     }
     DerivedPoint d =
         new DerivedPoint(
@@ -463,73 +461,73 @@ public class DerivedData {
   }
 
   public DerivedPoint get(int index) {
-    return m_derivedData.get(index);
+    return this.derivedData.get(index);
   }
 
-  public double getLCL() {
-    return LCL;
+  public double getLcl() {
+    return lcl;
   }
 
-  public double getCCL() {
-    return CCL;
+  public double getCcl() {
+    return ccl;
   }
 
-  public double getLFC() {
-    return LFC;
+  public double getLfc() {
+    return lfc;
   }
 
-  public double getEL() {
-    return EL;
+  public double getEl() {
+    return el;
   }
 
-  public double getLIFTED_INDEX() {
-    return LIFTED_INDEX;
+  public double getLiftedIndex() {
+    return liftedIndex;
   }
 
-  public double getKINX() {
-    return KINX;
+  public double getKinx() {
+    return kinx;
   }
 
-  public double getCROSS_TOTALS_INDEX() {
-    return CROSS_TOTALS_INDEX;
+  public double getCrossTotalsIndex() {
+    return crossTotalsIndex;
   }
 
-  public double getTOTAL_TOTALS_INDEX() {
-    return TOTAL_TOTALS_INDEX;
+  public double getTotalTotalsIndex() {
+    return totalTotalsIndex;
   }
 
-  public double getVERTICAL_TOTALS_INDEX() {
-    return VERTICAL_TOTALS_INDEX;
+  public double getVerticalTotalsIndex() {
+    return verticalTotalsIndex;
   }
 
-  public double getSWEAT() {
-    return SWEAT;
+  public double getSweat() {
+    return sweat;
   }
 
-  public double getBRCH() {
-    return BRCH;
+  public double getBrch() {
+    return brch;
   }
 
   public double getConvectiveTemperatureRise() {
     return convectiveTemperatureRise;
   }
 
-  public double getCAPE() {
-    return CAPE;
+  public double getCape() {
+    return cape;
   }
 
   public int size() {
-    return m_derivedData.size();
+    return this.derivedData.size();
   }
 
-  /** Gets the altitude of the lowest sample in metres */
+  /** Gets the altitude of the lowest sample in metres. */
   public double minHeight() {
-    return m_derivedData.get(0).getSampleHeight();
+    return this.derivedData.get(0).getSampleHeight();
   }
 
-  /** Gets the altitude of the highest sample in metres */
+  /** Gets the altitude of the highest sample in metres. */
   public double maxHeight() {
-    return m_derivedData.get(m_derivedData.size() - 1).getSampleHeight();
+    return this.derivedData.get(this.derivedData.size() - 1).getSampleHeight();
   }
 
   public double getSampleStep() {
@@ -537,20 +535,21 @@ public class DerivedData {
   }
 
   public ArrayList<DerivedPoint> getList() {
-    return m_derivedData;
+    return this.derivedData;
   }
 
+  @Override
   public String toString() {
     String outString = "Derived Data\n";
 
-    outString += "CCL: " + CCL + "\n";
-    outString += "CCL_pressure: " + CCL_pressure + "\n";
+    outString += "CCL: " + ccl + "\n";
+    outString += "CCL_pressure: " + cclPressure + "\n";
     outString += "CT: " + convectiveTemperature + "\n";
-    outString += "LCL: " + LCL + "\n";
-    outString += "LCL_pressure: " + LCL_pressure + "\n";
-    outString += "LCL_temperature: " + (toKelvin(LCL_temperature)) + "k\n";
-    outString += "LFC: " + LFC + "\n";
-    outString += "LFC_pressure: " + LFC_pressure + "\n";
+    outString += "LCL: " + lcl + "\n";
+    outString += "LCL_pressure: " + lclPressure + "\n";
+    outString += "LCL_temperature: " + (toKelvin(lclTemperature)) + "k\n";
+    outString += "LFC: " + lfc + "\n";
+    outString += "LFC_pressure: " + lfcPressure + "\n";
 
     return outString;
   }

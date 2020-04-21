@@ -10,9 +10,10 @@ import java.util.ListIterator;
  * @author Sancho McCann
  */
 public class SoundingData extends ArrayList<SoundingPoint> {
+  // /< The time of this SoundingData
   private static final long serialVersionUID = 1L;
 
-  private GregorianCalendar m_date_time; // /< The time of this SoundingData
+  private GregorianCalendar m_date_time; 
 
   private String m_stationName; // /< The station name from which this SoundingData's data came
 

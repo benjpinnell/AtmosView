@@ -19,7 +19,8 @@ import java.util.TreeMap;
  * @author Sancho McCann
  */
 public class SoundingFetcher {
-  private static SoundingFetcher m_instance = null; // /< The singleton instance
+  // /< The singleton instance
+  private static SoundingFetcher m_instance = null;
 
   private static TreeMap<String, String> stationMap; // /< Map of station ids to station names
 
