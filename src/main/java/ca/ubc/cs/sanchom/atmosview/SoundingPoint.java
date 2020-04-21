@@ -12,15 +12,15 @@ import java.io.Serializable;
 public class SoundingPoint implements Serializable, Comparable {
   private static final long serialVersionUID = 1L;
 
-  private double m_millibars; // /< The pressure level in millibars
-  private double m_metres; // /< The sample height in metres
-  private double m_temperature; // /< The temperature in degrees celcius
-  private double m_dewpoint; // /< The dewpoint in degrees celcius
-  private double m_direction; // /< The wind direction in degrees clockwise from North
-  private double m_speed; // /< The wind speed in nautical miles per hour
+  private double millibars; // /< The pressure level in millibars
+  private double metres; // /< The sample height in metres
+  private double temperature; // /< The temperature in degrees celcius
+  private double dewpoint; // /< The dewpoint in degrees celcius
+  private double direction; // /< The wind direction in degrees clockwise from North
+  private double speed; // /< The wind speed in nautical miles per hour
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param millibars the pressure level in millibars
    * @param metres the height in metres
@@ -36,16 +36,16 @@ public class SoundingPoint implements Serializable, Comparable {
       double dewpoint,
       double direction,
       double speed) {
-    m_millibars = millibars;
-    m_metres = metres;
-    m_temperature = temperature;
-    m_dewpoint = dewpoint;
-    m_direction = direction;
-    m_speed = speed;
+    this.millibars = millibars;
+    this.metres = metres;
+    this.temperature = temperature;
+    this.dewpoint = dewpoint;
+    this.direction = direction;
+    this.speed = speed;
   }
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param millibars the pressure level in millibars
    * @param metres the height in metres
@@ -57,86 +57,97 @@ public class SoundingPoint implements Serializable, Comparable {
   }
 
   /**
-   * Tests for value equality between two SoundingPoint objects
+   * Tests for value equality between two SoundingPoint objects.
    *
    * @param obj the other SoundingPoint object
    * @return true if the objects' members are equal; false otherwise
    */
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof SoundingPoint)) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof SoundingPoint)) {
+      return false;
+    }
 
     SoundingPoint that = (SoundingPoint) obj;
 
-    return (this.m_millibars == that.m_millibars)
-        && (this.m_metres == that.m_metres)
-        && (this.m_temperature == that.m_temperature)
-        && (this.m_dewpoint == that.m_dewpoint)
-        && (((this.m_direction == that.m_direction) && (this.m_speed == that.m_speed))
-            || ((Double.isNaN(this.m_direction) && Double.isNaN(that.m_direction))
-                && (Double.isNaN(this.m_speed) && Double.isNaN(that.m_speed))));
+    return (this.millibars == that.millibars)
+        && (this.metres == that.metres)
+        && (this.temperature == that.temperature)
+        && (this.dewpoint == that.dewpoint)
+        && (((this.direction == that.direction) && (this.speed == that.speed))
+            || ((Double.isNaN(this.direction) && Double.isNaN(that.direction))
+                && (Double.isNaN(this.speed) && Double.isNaN(that.speed))));
   }
 
   /**
+   * Override compareTo.
+   *
    * @param obj the object to compare with this SoundingPoint
    * @return 1 if this SoundingPoint has a higher altitude that obj 0 if this SoundingPoint has the
    *     same altitude as obj, or -1 if this SoundingPoint has a lowe altitude than obj
    */
   public int compareTo(Object obj) throws ClassCastException {
-    if (!(obj instanceof SoundingPoint))
+    if (!(obj instanceof SoundingPoint)) {
       throw new ClassCastException(
           "Passed object cannot be compared with object of type SoundingPoint");
-    if (equals(obj)) return 0;
+    }
+    if (equals(obj)) {
+      return 0;
+    }
 
     SoundingPoint that = (SoundingPoint) obj;
 
-    if (this.m_metres == that.m_metres) return 0;
+    if (this.metres == that.metres) {
+      return 0;
+    }
 
-    return (this.m_metres < that.m_metres ? -1 : 1);
+    return (this.metres < that.metres ? -1 : 1);
   }
 
-  /** returns the pressure level of the sounding in millibars */
+  /** Returns the pressure level of the sounding in millibars. */
   public double getMillibars() {
-    return m_millibars;
+    return this.millibars;
   }
 
-  /** returns the height of the sounding in metres */
+  /** Returns the height of the sounding in metres. */
   public double getMetres() {
-    return m_metres;
+    return metres;
   }
 
-  /** returns the temperature of the sounding in degrees celcius */
+  /** Returns the temperature of the sounding in degrees Celcius. */
   public double getTemperature() {
-    return m_temperature;
+    return temperature;
   }
 
-  /** returns the dewpoint of the sounding in degrees celcuis */
+  /** Returns the dewpoint of the sounding in degrees Celcius. */
   public double getDewpoint() {
-    return m_dewpoint;
+    return dewpoint;
   }
 
-  /** returns the direction of the wind in degrees clockwise from North */
+  /** Returns the direction of the wind in degrees clockwise from North. */
   public double getDirection() {
-    return m_direction;
+    return direction;
   }
 
-  /** returns the speed of the wind in knots */
+  /** Returns the speed of the wind in knots. */
   public double getSpeed() {
-    return m_speed;
+    return speed;
   }
 
-  /** returns a string representation of the data in this SoundingPoint */
+  @Override
   public String toString() {
-    return m_millibars
+    return millibars
         + "mb, "
-        + m_metres
+        + metres
         + "m, "
-        + m_temperature
+        + temperature
         + " C, "
-        + m_dewpoint
+        + dewpoint
         + " C, "
-        + m_direction
+        + direction
         + " degrees, "
-        + m_speed;
+        + speed;
   }
 }
