@@ -34,11 +34,11 @@ public class MainFrame extends JFrame {
 
   private static final long serialVersionUID = 1L;
 
-  private JPanel ButtonPanel = null;
+  private JPanel buttonPanel = null;
 
-  private JPanel jContentPane = null;
+  private JPanel contentPanel = null;
 
-  private JTabbedPane jTabbedPane = null;
+  private JTabbedPane tabbedPane = null;
 
   private JScrollPane stationScroller = null;
 
@@ -49,21 +49,21 @@ public class MainFrame extends JFrame {
 
   private JButton getDataButton = null;
 
-  private SoundingPanel SoundingDisplayPanel = null;
+  private SoundingPanel soundingDisplayPanel = null;
 
-  private BarPanel BarDisplayPanel = null;
+  private BarPanel barDisplayPanel = null;
 
-  private Box NorthPanel = null;
+  private Box northPanel = null;
 
-  private JPanel SingleViewPanel = null;
+  private JPanel singleViewPanel = null;
 
-  private JPanel MultiViewPanel = null;
+  private JPanel multieViewPanel = null;
 
-  private JButton ActivateFileChooserButton = null;
+  private JButton activateFileChooserButton = null;
 
-  private JDateChooser DateChooser = null;
+  private JDateChooser dateChooser = null;
 
-  private JSplitPane SplitPane = null;
+  private JSplitPane splitPane = null;
 
   //  @jve:decl-index=0:
   private ButtonGroup HourRadios = null;
@@ -95,14 +95,14 @@ public class MainFrame extends JFrame {
     }
   }
 
-  /** This is the default constructor */
+  /** This is the default constructor. */
   public MainFrame() {
     super();
     initialize();
     multiples = new Vector<BarPanel>();
   }
 
-  /** This method initializes this */
+  /** This method initializes this. */
   private void initialize() {
     this.setSize(1000, 700);
     this.setContentPane(getJContentPane());
@@ -116,95 +116,95 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * This method initializes jContentPane
+   * This method initializes contentPanel.
    *
    * @return javax.swing.JPanel
    */
   private JPanel getJContentPane() {
-    if (jContentPane == null) {
-      jContentPane = new JPanel();
-      jContentPane.setLayout(new BoxLayout(getJContentPane(), BoxLayout.Y_AXIS));
-      jContentPane.add(getNorthPanel());
-      jContentPane.add(getJTabbedPane(), null);
+    if (contentPanel == null) {
+      contentPanel = new JPanel();
+      contentPanel.setLayout(new BoxLayout(getJContentPane(), BoxLayout.Y_AXIS));
+      contentPanel.add(getNorthPanel());
+      contentPanel.add(getJTabbedPane(), null);
     }
-    return jContentPane;
+    return contentPanel;
   }
 
   /**
-   * This method initializes jTabbedPane
+   * This method initializes tabbedPane.
    *
    * @return javax.swing.JTabbedPane
    */
   private JTabbedPane getJTabbedPane() {
-    if (jTabbedPane == null) {
-      jTabbedPane = new JTabbedPane();
-      jTabbedPane.addTab(
+    if (tabbedPane == null) {
+      tabbedPane = new JTabbedPane();
+      tabbedPane.addTab(
           "Single View", null, getSingleViewPanel(), "Select and view individual soundings");
-      jTabbedPane.addTab(
+      tabbedPane.addTab(
           "Multi View", null, getMultiViewPanel(), "Select and view small multiples of soundings");
     }
-    return jTabbedPane;
+    return tabbedPane;
   }
 
   private Box getNorthPanel() {
-    if (NorthPanel == null) {
-      NorthPanel = Box.createHorizontalBox();
-      NorthPanel.setMaximumSize(new Dimension(1000, 350));
-      NorthPanel.add(Box.createHorizontalGlue());
-      NorthPanel.add(getStationScroller(), null);
-      NorthPanel.add(Box.createHorizontalGlue());
-      NorthPanel.add(getButtonPanel(), null);
-      NorthPanel.add(Box.createHorizontalGlue());
-      NorthPanel.add(getLegendPanel(), null);
-      NorthPanel.add(Box.createHorizontalGlue());
+    if (northPanel == null) {
+      northPanel = Box.createHorizontalBox();
+      northPanel.setMaximumSize(new Dimension(1000, 350));
+      northPanel.add(Box.createHorizontalGlue());
+      northPanel.add(getStationScroller(), null);
+      northPanel.add(Box.createHorizontalGlue());
+      northPanel.add(getButtonPanel(), null);
+      northPanel.add(Box.createHorizontalGlue());
+      northPanel.add(getLegendPanel(), null);
+      northPanel.add(Box.createHorizontalGlue());
     }
-    return NorthPanel;
+    return northPanel;
   }
 
   private JPanel getSingleViewPanel() {
-    if (SingleViewPanel == null) {
-      SingleViewPanel = new JPanel();
-      SingleViewPanel.setLayout(new BoxLayout(getSingleViewPanel(), BoxLayout.X_AXIS));
-      SingleViewPanel.add(getSplitPane());
+    if (singleViewPanel == null) {
+      singleViewPanel = new JPanel();
+      singleViewPanel.setLayout(new BoxLayout(getSingleViewPanel(), BoxLayout.X_AXIS));
+      singleViewPanel.add(getSplitPane());
     }
-    return SingleViewPanel;
+    return singleViewPanel;
   }
 
   private JPanel getMultiViewPanel() {
-    if (MultiViewPanel == null) {
-      MultiViewPanel = new JPanel();
-      MultiViewPanel.setLayout(new BoxLayout(getMultiViewPanel(), BoxLayout.X_AXIS));
+    if (multieViewPanel == null) {
+      multieViewPanel = new JPanel();
+      multieViewPanel.setLayout(new BoxLayout(getMultiViewPanel(), BoxLayout.X_AXIS));
 
-      MultiViewPanel.addComponentListener(
+      multieViewPanel.addComponentListener(
           new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent e) {
               redrawMultiples();
             }
           });
     }
-    return MultiViewPanel;
+    return multieViewPanel;
   }
 
   /**
-   * This methoed initializes dataSourceButtonPanel
+   * This methoed initializes dataSourceButtonPanel.
    *
    * @return javax.swing.JPanel
    */
   private JPanel getButtonPanel() {
-    if (ButtonPanel == null) {
-      ButtonPanel = new JPanel();
-      ButtonPanel.setLayout(new BoxLayout(getButtonPanel(), BoxLayout.Y_AXIS));
-      ButtonPanel.setMaximumSize(new Dimension(200, 350));
-      ButtonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-      ButtonPanel.add(getDateChooser());
-      ButtonPanel.add(getZeroButton());
-      ButtonPanel.add(getTwelveButton());
-      ButtonPanel.add(getGetDataButton());
-      ButtonPanel.add(getActivateFileChooserButton());
-      ButtonPanel.add(Box.createVerticalGlue());
+    if (buttonPanel == null) {
+      buttonPanel = new JPanel();
+      buttonPanel.setLayout(new BoxLayout(getButtonPanel(), BoxLayout.Y_AXIS));
+      buttonPanel.setMaximumSize(new Dimension(200, 350));
+      buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+      buttonPanel.add(getDateChooser());
+      buttonPanel.add(getZeroButton());
+      buttonPanel.add(getTwelveButton());
+      buttonPanel.add(getGetDataButton());
+      buttonPanel.add(getActivateFileChooserButton());
+      buttonPanel.add(Box.createVerticalGlue());
     }
 
-    return ButtonPanel;
+    return buttonPanel;
   }
 
   private LegendPanel getLegendPanel() {
@@ -224,7 +224,7 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * This method initializes stationScroller
+   * This method initializes stationScroller.
    *
    * @return javax.swing.JScrollPane
    */
@@ -242,7 +242,7 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * This method initializes stationJList
+   * This method initializes stationJList.
    *
    * @return javax.swing.JList
    */
@@ -284,7 +284,7 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * This method initializes getDataButton
+   * This method initializes getDataButton.
    *
    * @return javax.swing.JButton
    */
@@ -306,74 +306,69 @@ public class MainFrame extends JFrame {
   }
 
   private JButton getActivateFileChooserButton() {
-    if (ActivateFileChooserButton == null) {
-      ActivateFileChooserButton = new JButton();
-      ActivateFileChooserButton.setText("Choose Local File");
-      ActivateFileChooserButton.setAlignmentX(RIGHT_ALIGNMENT);
-      ActivateFileChooserButton.setMaximumSize(new Dimension(200, 25));
+    if (activateFileChooserButton == null) {
+      activateFileChooserButton = new JButton();
+      activateFileChooserButton.setText("Choose Local File");
+      activateFileChooserButton.setAlignmentX(RIGHT_ALIGNMENT);
+      activateFileChooserButton.setMaximumSize(new Dimension(200, 25));
       final Component parent = this;
-      ActivateFileChooserButton.addActionListener(
+      activateFileChooserButton.addActionListener(
           new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
               JFileChooser chooser = new JFileChooser();
               chooser.setFileFilter(new FileExtensionFilter("csv"));
-              // TODO: fix this!
-              chooser.setCurrentDirectory(new File("/Users/sancho/Documents/Projects/atmospheric"));
+              // chooser.setCurrentDirectory(new
+              // File("/Users/sancho/Documents/Projects/atmospheric"));
               int returnVal = chooser.showOpenDialog(parent);
-              try {
+              if (returnVal == JFileChooser.APPROVE_OPTION) {
+                contentPanel.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+                SoundingData data = SoundingCSVParser.getSounding(chooser.getSelectedFile());
 
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                  Cursor orig = jContentPane.getCursor();
-                  jContentPane.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-                  SoundingData data = SoundingCSVParser.getSounding(chooser.getSelectedFile());
-
-                  SoundingDisplayPanel.linkSoundingData(data);
-                  BarDisplayPanel.linkSoundingData(data);
-                  SoundingDisplayPanel.repaint();
-                  BarDisplayPanel.repaint();
-                  jContentPane.setCursor(orig);
-                }
-              } catch (Exception ex) {
-
+                soundingDisplayPanel.linkSoundingData(data);
+                barDisplayPanel.linkSoundingData(data);
+                soundingDisplayPanel.repaint();
+                barDisplayPanel.repaint();
+                Cursor orig = contentPanel.getCursor();
+                contentPanel.setCursor(orig);
               }
             }
           });
     }
-    return ActivateFileChooserButton;
+    return activateFileChooserButton;
   }
 
   private SoundingPanel getSoundingPanel() {
-    if (SoundingDisplayPanel == null) {
-      SoundingDisplayPanel = new SoundingPanel();
-      SoundingDisplayPanel.setBackground(Color.WHITE);
-      SoundingDisplayPanel.setSize(new Dimension(400, 550));
+    if (soundingDisplayPanel == null) {
+      soundingDisplayPanel = new SoundingPanel();
+      soundingDisplayPanel.setBackground(Color.WHITE);
+      soundingDisplayPanel.setSize(new Dimension(400, 550));
 
-      SoundingDisplayPanel.addComponentListener(
+      soundingDisplayPanel.addComponentListener(
           new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent e) {
-              SoundingDisplayPanel.updateShapes();
+              soundingDisplayPanel.updateShapes();
             }
           });
     }
 
-    return SoundingDisplayPanel;
+    return soundingDisplayPanel;
   }
 
   private JSplitPane getSplitPane() {
-    if (SplitPane == null) {
-      SplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-      SplitPane.setLeftComponent(getVisualizationPanel());
-      SplitPane.setRightComponent(getSoundingPanel());
-      SplitPane.setDividerLocation(500);
+    if (splitPane == null) {
+      splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+      splitPane.setLeftComponent(getVisualizationPanel());
+      splitPane.setRightComponent(getSoundingPanel());
+      splitPane.setDividerLocation(500);
       splitRatio = 0.5;
-      final JSplitPane j = SplitPane;
-      SplitPane.addComponentListener(
+      final JSplitPane j = splitPane;
+      splitPane.addComponentListener(
           new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent e) {
               j.setDividerLocation((int) (splitRatio * j.getWidth()));
             }
           });
-      SplitPane.addPropertyChangeListener(
+      splitPane.addPropertyChangeListener(
           "dividerLocation",
           new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent e) {
@@ -381,23 +376,23 @@ public class MainFrame extends JFrame {
             }
           });
     }
-    return SplitPane;
+    return splitPane;
   }
 
   private BarPanel getVisualizationPanel() {
-    if (BarDisplayPanel == null) {
-      BarDisplayPanel = new BarPanel();
-      BarDisplayPanel.setBackground(Color.WHITE);
-      BarDisplayPanel.setSize(new Dimension(300, 550));
-      BarDisplayPanel.addComponentListener(
+    if (barDisplayPanel == null) {
+      barDisplayPanel = new BarPanel();
+      barDisplayPanel.setBackground(Color.WHITE);
+      barDisplayPanel.setSize(new Dimension(300, 550));
+      barDisplayPanel.addComponentListener(
           new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent e) {
-              BarDisplayPanel.updateShapes();
+              barDisplayPanel.updateShapes();
             }
           });
     }
 
-    return BarDisplayPanel;
+    return barDisplayPanel;
   }
 
   private ButtonGroup getHourGroup() {
@@ -436,24 +431,24 @@ public class MainFrame extends JFrame {
   }
 
   private JDateChooser getDateChooser() {
-    if (DateChooser == null) {
-      DateChooser = new JDateChooser(new Date());
-      DateChooser.setAlignmentX(RIGHT_ALIGNMENT);
-      DateChooser.setPreferredSize(new Dimension(200, 30));
-      DateChooser.setMaximumSize(new Dimension(200, 30));
-      DateChooser.getCalendarButton().setIcon(null);
-      DateChooser.getCalendarButton().setText("Calendar");
+    if (dateChooser == null) {
+      dateChooser = new JDateChooser(new Date());
+      dateChooser.setAlignmentX(RIGHT_ALIGNMENT);
+      dateChooser.setPreferredSize(new Dimension(200, 30));
+      dateChooser.setMaximumSize(new Dimension(200, 30));
+      dateChooser.getCalendarButton().setIcon(null);
+      dateChooser.getCalendarButton().setText("Calendar");
     }
-    return DateChooser;
+    return dateChooser;
   }
 
   private void downloadSounding() {
-    Cursor orig = jContentPane.getCursor();
-    jContentPane.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+    Cursor orig = contentPanel.getCursor();
+    contentPanel.setCursor(new Cursor(Cursor.WAIT_CURSOR));
     int selectedIndex = stationJList.getSelectedIndex();
     if (selectedIndex >= 0 && selectedIndex < stationIDs.size()) {
       GregorianCalendar chosen = new GregorianCalendar();
-      chosen.setTime(DateChooser.getDate());
+      chosen.setTime(dateChooser.getDate());
 
       chosen.set(Calendar.HOUR, Integer.parseInt(HourRadios.getSelection().getActionCommand()));
 
@@ -466,11 +461,11 @@ public class MainFrame extends JFrame {
       }
 
       if (soundingData != null) {
-        if (jTabbedPane.getSelectedIndex() == 0) {
-          SoundingDisplayPanel.linkSoundingData(soundingData);
-          BarDisplayPanel.linkSoundingData(soundingData);
-          SoundingDisplayPanel.repaint();
-          BarDisplayPanel.repaint();
+        if (tabbedPane.getSelectedIndex() == 0) {
+          soundingDisplayPanel.linkSoundingData(soundingData);
+          barDisplayPanel.linkSoundingData(soundingData);
+          soundingDisplayPanel.repaint();
+          barDisplayPanel.repaint();
         } else {
           if (multiples.size() < 8) {
             final BarPanel b = new BarPanel();
@@ -482,8 +477,8 @@ public class MainFrame extends JFrame {
                   public void mouseClicked(java.awt.event.MouseEvent e) {
                     int mask = java.awt.event.MouseEvent.BUTTON1_MASK - 1;
                     int mods = e.getModifiers() & mask;
-                    if (mods != 0) // Right button clicked, or ctrl click
-                    {
+                    // Right button clicked, or ctrl click
+                    if (mods != 0) {
                       multiples.remove(b);
                       redrawMultiples();
                     } else if (e.getClickCount() == 2) {
@@ -500,16 +495,16 @@ public class MainFrame extends JFrame {
         } // if-else for single-view vs multi-view
       } // end if soundingData != null
     }
-    jContentPane.setCursor(orig);
+    contentPanel.setCursor(orig);
   }
 
   private void redrawMultiples() {
-    MultiViewPanel.removeAll();
+    multieViewPanel.removeAll();
 
     if (multiples.size() > 4) {
-      MultiViewPanel.setLayout(new BoxLayout(MultiViewPanel, BoxLayout.Y_AXIS));
+      multieViewPanel.setLayout(new BoxLayout(multieViewPanel, BoxLayout.Y_AXIS));
     } else {
-      MultiViewPanel.setLayout(new BoxLayout(MultiViewPanel, BoxLayout.X_AXIS));
+      multieViewPanel.setLayout(new BoxLayout(multieViewPanel, BoxLayout.X_AXIS));
     }
 
     JPanel topRow = new JPanel();
@@ -523,18 +518,21 @@ public class MainFrame extends JFrame {
       BarPanel n = i.next();
       int dim =
           Math.min(
-              MultiViewPanel.getHeight() / (multiples.size() <= 4 ? 1 : 2),
-              MultiViewPanel.getWidth() / Math.min(multiples.size(), 4));
+              multieViewPanel.getHeight() / (multiples.size() <= 4 ? 1 : 2),
+              multieViewPanel.getWidth() / Math.min(multiples.size(), 4));
       n.setMaximumSize(new Dimension(dim, dim));
       n.setSize(new Dimension(dim, dim));
 
-      if (num < 4) topRow.add(n);
-      else bottomRow.add(n);
+      if (num < 4) {
+        topRow.add(n);
+      } else {
+        bottomRow.add(n);
+      }
       num++;
     }
 
-    MultiViewPanel.add(topRow);
-    MultiViewPanel.add(bottomRow);
+    multieViewPanel.add(topRow);
+    multieViewPanel.add(bottomRow);
 
     i = multiples.iterator();
     while (i.hasNext()) {
@@ -542,14 +540,14 @@ public class MainFrame extends JFrame {
       n.updateShapes();
       n.repaint();
     }
-    jContentPane.repaint();
+    contentPanel.repaint();
   }
 
   private void showInSingleView(SoundingData data) {
-    SoundingDisplayPanel.linkSoundingData(data);
-    BarDisplayPanel.linkSoundingData(data);
-    SoundingDisplayPanel.repaint();
-    BarDisplayPanel.repaint();
-    jTabbedPane.setSelectedIndex(0);
+    soundingDisplayPanel.linkSoundingData(data);
+    barDisplayPanel.linkSoundingData(data);
+    soundingDisplayPanel.repaint();
+    barDisplayPanel.repaint();
+    tabbedPane.setSelectedIndex(0);
   }
 }
