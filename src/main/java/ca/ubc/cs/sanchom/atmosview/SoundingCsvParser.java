@@ -2,13 +2,15 @@ package ca.ubc.cs.sanchom.atmosview;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.GregorianCalendar;
 
 public class SoundingCsvParser {
 
   /** Returns sounding data from the specified file. */
-  public static SoundingData getSounding(File file) {
+  public static SoundingData getSounding(File file) throws FileNotFoundException, IOException {
     SoundingData data = new SoundingData(new GregorianCalendar());
 
     BufferedReader in = new BufferedReader(new FileReader(file));

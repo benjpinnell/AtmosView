@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,6 +23,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -312,6 +314,7 @@ public class MainFrame extends JFrame {
       activateFileChooserButton.setAlignmentX(RIGHT_ALIGNMENT);
       activateFileChooserButton.setMaximumSize(new Dimension(200, 25));
       final Component parent = this;
+      final JFrame frame = this;
       activateFileChooserButton.addActionListener(
           new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -321,15 +324,25 @@ public class MainFrame extends JFrame {
               // File("/Users/sancho/Documents/Projects/atmospheric"));
               int returnVal = chooser.showOpenDialog(parent);
               if (returnVal == JFileChooser.APPROVE_OPTION) {
-                contentPanel.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-                SoundingData data = SoundingCSVParser.getSounding(chooser.getSelectedFile());
-
-                soundingDisplayPanel.linkSoundingData(data);
-                barDisplayPanel.linkSoundingData(data);
-                soundingDisplayPanel.repaint();
-                barDisplayPanel.repaint();
                 Cursor orig = contentPanel.getCursor();
-                contentPanel.setCursor(orig);
+                contentPanel.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+                try {
+                  SoundingData data = SoundingCsvParser.getSounding(chooser.getSelectedFile());
+                  soundingDisplayPanel.linkSoundingData(data);
+                  barDisplayPanel.linkSoundingData(data);
+                  soundingDisplayPanel.repaint();
+                  barDisplayPanel.repaint();
+                } catch (FileNotFoundException fnne) {
+                  JOptionPane.showMessageDialog(
+                      frame, fnne.getMessage(), "File Not Found", JOptionPane.ERROR_MESSAGE);
+                  return;
+                } catch (IOException ioe) {
+                  JOptionPane.showMessageDialog(
+                      frame, ioe.getMessage(), "Error Reading File", JOptionPane.ERROR_MESSAGE);
+                  return;
+                } finally {
+                  contentPanel.setCursor(orig);
+                }
               }
             }
           });
