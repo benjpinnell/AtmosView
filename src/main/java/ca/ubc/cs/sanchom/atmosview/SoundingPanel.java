@@ -24,36 +24,35 @@ import javax.swing.JPanel;
  */
 public class SoundingPanel extends JPanel {
 
-  /** The data that is plotted on this panel */
-  private SoundingData m_data = null;
+  // The data that is plotted on this panel.
+  private SoundingData data = null;
+  private DerivedData derivedData = null;
 
-  private DerivedData m_derivedData = null;
+  private static final Color AXIS_COLOUR = Color.BLACK;
+  private static final Color DEW_COLOUR = new Color(0.018f, 0.4072f, 0f);
+  private static final Color TEMP_COLOUR = new Color(0f, 0.4077f, 0.8385f);
 
-  private final Color AXIS_COLOUR = Color.BLACK;
-  private final Color DEW_COLOUR = new Color(0.018f, 0.4072f, 0f);
-  private final Color TEMP_COLOUR = new Color(0f, 0.4077f, 0.8385f);
+  private static final int MIN_TEMP = -100;
+  private static final int MAX_TEMP = 45;
+  private static final int MAX_HEIGHT = 15000; // metres metres
+  private static final int X_TICK_STEP = 20;
+  private static final int Y_TICK_STEP = 1000;
 
-  private final int MIN_TEMP = -100;
-  private final int MAX_TEMP = 45;
-  private final int MAX_HEIGHT = 15000; // metres metres
-  private final int X_TICK_STEP = 20;
-  private final int Y_TICK_STEP = 1000;
-
-  private Point2D xLabelLoc = null;
-  private Point2D yLabelLoc = null;
+  private Point2D labelLocX = null;
+  private Point2D labelLocY = null;
 
   private Point2D titleLoc = null;
 
-  private final int TOP_MARGIN = 50;
-  private final int BOTTOM_MARGIN = 50;
-  private final int LEFT_MARGIN = 100;
-  private final int RIGHT_MARGIN = 50;
-  private final int TICK_SIZE = 5;
+  private static final int TOP_MARGIN = 50;
+  private static final int BOTTOM_MARGIN = 50;
+  private static final int LEFT_MARGIN = 100;
+  private static final int RIGHT_MARGIN = 50;
+  private static final int TICK_SIZE = 5;
 
-  private Line2D xAxis = null;
-  private Line2D yAxis = null;
-  private Vector<Line2D> xTicks = null;
-  private Vector<Line2D> yTicks = null;
+  private Line2D axisX = null;
+  private Line2D axisY = null;
+  private Vector<Line2D> ticksX = null;
+  private Vector<Line2D> ticksY = null;
 
   private GeneralPath tempPath = null;
   private GeneralPath dewPath = null;
@@ -71,14 +70,14 @@ public class SoundingPanel extends JPanel {
    * @param data the SoundingData
    */
   public void linkSoundingData(SoundingData data) {
-    m_data = data;
-    m_derivedData = new DerivedData(data);
+    this.data = data;
+    this.derivedData = new DerivedData(data);
     updateShapes();
   }
 
-  /** Triggers an update of the shape objects */
+  /** Triggers an update of the shape objects. */
   public void updateShapes() {
-    Point2D TRANSLATED_ORIGIN =
+    Point2D translatedOrigin =
         new Point2D.Double(getSize().width * 0.66f, getSize().height - BOTTOM_MARGIN);
 
     // This transform is only for the drawing, not zoom and pan.
@@ -89,26 +88,26 @@ public class SoundingPanel extends JPanel {
             0,
             0,
             -(getSize().height - BOTTOM_MARGIN - TOP_MARGIN) / (float) MAX_HEIGHT,
-            TRANSLATED_ORIGIN.getX(),
-            TRANSLATED_ORIGIN.getY());
+            translatedOrigin.getX(),
+            translatedOrigin.getY());
 
-    yAxis =
+    axisY =
         new Line2D.Double(
             tx.transform(new Point2D.Double(MIN_TEMP, 0), null),
             tx.transform(new Point2D.Double(MIN_TEMP, MAX_HEIGHT), null));
-    xAxis =
+    axisX =
         new Line2D.Double(
             tx.transform(new Point2D.Double(MIN_TEMP, 0), null),
             tx.transform(new Point2D.Double(MAX_TEMP, 0), null));
 
-    yTicks = new Vector<Line2D>();
-    xTicks = new Vector<Line2D>();
+    ticksY = new Vector<Line2D>();
+    ticksX = new Vector<Line2D>();
     for (int j = Y_TICK_STEP; j <= MAX_HEIGHT; j += Y_TICK_STEP) {
       Point2D loc = new Point2D.Double();
 
       tx.transform(new Point2D.Double(MIN_TEMP, j), loc);
 
-      yTicks.add(
+      ticksY.add(
           new Line2D.Double(
               loc.getX() - TICK_SIZE / 2f, loc.getY(), loc.getX() + TICK_SIZE / 2f, loc.getY()));
     }
@@ -118,40 +117,40 @@ public class SoundingPanel extends JPanel {
 
       tx.transform(new Point2D.Double(j, 0), loc);
 
-      xTicks.add(
+      ticksX.add(
           new Line2D.Double(
               loc.getX(), loc.getY() + TICK_SIZE / 2f, loc.getX(), loc.getY() - TICK_SIZE / 2f));
     }
 
-    xLabelLoc =
+    labelLocX =
         new Point2D.Double(
             tx.transform(new Point2D.Double((MAX_TEMP + MIN_TEMP) / 2f, 0), null).getX(),
             getSize().height - 15 / 2f);
 
-    yLabelLoc =
+    labelLocY =
         new Point2D.Double(20, tx.transform(new Point2D.Double(0, MAX_HEIGHT / 2), null).getY());
 
-    if (m_data != null) {
-      title = m_data.getStationName();
+    if (this.data != null) {
+      title = this.data.getStationName();
 
       parcelPath = new GeneralPath();
       tempPath = new GeneralPath();
       dewPath = new GeneralPath();
 
-      ListIterator i = m_data.listIterator();
+      ListIterator i = this.data.listIterator();
       int n = 0;
       while (i.hasNext()) {
         SoundingPoint sp = (SoundingPoint) (i.next());
 
         if (sp.getMetres() < MAX_HEIGHT) {
-          double yVal = sp.getMetres();
+          double valY = sp.getMetres();
           double temp = sp.getTemperature();
           double dew = sp.getDewpoint();
 
           Point2D transformedTemp = new Point2D.Double();
           Point2D transformedDewpoint = new Point2D.Double();
-          tx.transform(new Point2D.Double(temp, yVal), transformedTemp);
-          tx.transform(new Point2D.Double(dew, yVal), transformedDewpoint);
+          tx.transform(new Point2D.Double(temp, valY), transformedTemp);
+          tx.transform(new Point2D.Double(dew, valY), transformedDewpoint);
           if (n == 0) {
             tempPath.moveTo((float) transformedTemp.getX(), (float) transformedTemp.getY());
             dewPath.moveTo((float) transformedDewpoint.getX(), (float) transformedDewpoint.getY());
@@ -163,17 +162,17 @@ public class SoundingPanel extends JPanel {
         }
       }
 
-      ListIterator j = m_derivedData.getList().listIterator();
+      ListIterator j = this.derivedData.getList().listIterator();
       boolean first = true;
       while (j.hasNext()) {
         DerivedPoint dp = (DerivedPoint) (j.next());
         double parcelTemp = dp.getLiftedParcelTemp();
 
         if (dp.getSampleHeight() < MAX_HEIGHT && parcelTemp >= MIN_TEMP) {
-          double yVal = dp.getSampleHeight();
+          double valY = dp.getSampleHeight();
 
           Point2D transformedTemp = new Point2D.Double();
-          tx.transform(new Point2D.Double(parcelTemp, yVal), transformedTemp);
+          tx.transform(new Point2D.Double(parcelTemp, valY), transformedTemp);
           if (first) {
             parcelPath.moveTo((float) transformedTemp.getX(), (float) transformedTemp.getY());
             first = false;
@@ -185,9 +184,7 @@ public class SoundingPanel extends JPanel {
     }
   }
 
-  /* (non-Javadoc)
-   * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-   */
+  @Override
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
     Graphics2D g2 = (Graphics2D) g;
@@ -202,9 +199,9 @@ public class SoundingPanel extends JPanel {
 
     // TODO: Use canvas transformations to allow pan and zoom
     g2.setColor(AXIS_COLOUR);
-    if (yAxis != null && xAxis != null) {
-      g2.draw(yAxis);
-      g2.draw(xAxis);
+    if (axisY != null && axisX != null) {
+      g2.draw(axisY);
+      g2.draw(axisX);
     }
 
     if (title != null) {
@@ -212,11 +209,6 @@ public class SoundingPanel extends JPanel {
       Rectangle2D bounds = g2.getFont().getStringBounds(title, g2.getFontRenderContext());
       g2.drawString(title, (int) (titleLoc.getX() - bounds.getWidth() / 2f), (int) titleLoc.getY());
     }
-
-    //		if (m_data != null ) {
-    //			g2.setColor(TITLE_COLOUR);
-    //			g2.drawString(m_data.timeString(), 240, 30);
-    //		}
 
     if (tempPath != null) {
       g2.setColor(TEMP_COLOUR);
@@ -236,47 +228,48 @@ public class SoundingPanel extends JPanel {
       g2.draw(parcelPath);
     }
 
-    if (yTicks != null) {
+    if (ticksY != null) {
       g2.setColor(AXIS_COLOUR);
-      for (int i = 0; i < yTicks.size(); i++) {
-        g2.draw(yTicks.get(i));
+      for (int i = 0; i < ticksY.size(); i++) {
+        g2.draw(ticksY.get(i));
         String tickLabel = new String("" + (i + 1) * Y_TICK_STEP);
         Rectangle2D bounds = g2.getFont().getStringBounds(tickLabel, g2.getFontRenderContext());
 
         if ((i + 1) % 5 == 0) {
           g2.drawString(
               tickLabel,
-              (int) (yTicks.get(i).getP1().getX() - (bounds.getWidth() + 5)),
-              (int) (yTicks.get(i).getP1().getY() + bounds.getHeight() / 2));
+              (int) (ticksY.get(i).getP1().getX() - (bounds.getWidth() + 5)),
+              (int) (ticksY.get(i).getP1().getY() + bounds.getHeight() / 2));
         }
       }
 
       TextLayout layout = new TextLayout("Altitude (m)", g2.getFont(), g2.getFontRenderContext());
-      AffineTransform orig = g2.getTransform();
 
-      g2.translate(yLabelLoc.getX(), yLabelLoc.getY());
+      g2.translate(labelLocY.getX(), labelLocY.getY());
       g2.rotate(-Math.PI / 2);
       layout.draw(g2, -layout.getAdvance() / 2, 0);
+
+      AffineTransform orig = g2.getTransform();
       g2.setTransform(orig);
     }
 
-    if (xTicks != null) {
+    if (ticksX != null) {
       g2.setColor(AXIS_COLOUR);
-      for (int i = 0; i < xTicks.size(); i++) {
-        g2.draw(xTicks.get(i));
+      for (int i = 0; i < ticksX.size(); i++) {
+        g2.draw(ticksX.get(i));
         String tickLabel = new String("" + (MIN_TEMP + i * X_TICK_STEP));
         Rectangle2D bounds = g2.getFont().getStringBounds(tickLabel, g2.getFontRenderContext());
 
         g2.drawString(
             tickLabel,
-            (int) (xTicks.get(i).getP1().getX() - bounds.getWidth() / 2.0),
-            (int) (xTicks.get(i).getP1().getY() + bounds.getHeight() + 5));
+            (int) (ticksX.get(i).getP1().getX() - bounds.getWidth() / 2.0),
+            (int) (ticksX.get(i).getP1().getY() + bounds.getHeight() + 5));
       }
 
-      String xLabel = new String("Temperature and Dewpoint (\u00B0C)");
-      Rectangle2D bounds = g2.getFont().getStringBounds(xLabel, g2.getFontRenderContext());
+      String labelX = new String("Temperature and Dewpoint (°C)");
+      Rectangle2D bounds = g2.getFont().getStringBounds(labelX, g2.getFontRenderContext());
       g2.drawString(
-          xLabel, (int) (xLabelLoc.getX() - bounds.getWidth() / 2f), (int) (xLabelLoc.getY()));
+          labelX, (int) (labelLocX.getX() - bounds.getWidth() / 2f), (int) (labelLocX.getY()));
     }
 
     Stroke orig = g2.getStroke();
