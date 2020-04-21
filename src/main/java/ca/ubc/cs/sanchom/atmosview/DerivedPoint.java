@@ -33,6 +33,7 @@ public class DerivedPoint {
       liftedDiff; /// < The difference between the environmental temperature and the lifted parcel
   // temperature.
 
+  /** Create derived point from metrics. */
   public DerivedPoint(
       double height,
       double pressure,
@@ -49,6 +50,7 @@ public class DerivedPoint {
     redoDerivation();
   }
 
+  /** Create dervied point from another derived point. */
   public DerivedPoint(DerivedPoint that) {
     this.sampleHeight = that.sampleHeight;
     this.pressure = that.pressure;
@@ -149,32 +151,36 @@ public class DerivedPoint {
     // Calculate relative humidity
     // Formula from http://www.aprweather.com/pages/calc.htm
 
-    double e_actual = DerivedData.getVapourPressure(dewpoint);
-    double e_sat = DerivedData.getVapourPressure(temperature);
+    double actual = DerivedData.getVapourPressure(dewpoint);
+    double sat = DerivedData.getVapourPressure(temperature);
 
-    relativeHumidity = 100 * e_actual / e_sat;
+    relativeHumidity = 100 * actual / sat;
     stratusCloud = relativeHumidity >= STRATUS_RH_THRESHOLD;
-    vapourPressure = e_actual;
+    vapourPressure = actual;
     mixingRatio = DerivedData.getMixingRatio(pressure, vapourPressure);
   }
 
   /**
-   * Compares two DerivedPoints for sorting purposes
+   * Compares two DerivedPoints for sorting purposes.
    *
    * @param obj The object to compare this DerivedPoint with.
    * @return 1 if this DerivedPoint is at a higher altitude than obj
    */
   public int compareTo(Object obj) {
-    if (!(obj instanceof DerivedPoint))
+    if (!(obj instanceof DerivedPoint)) {
       throw new ClassCastException(
           "Passed object cannot be compared with object of type DerivedPoint");
+    }
 
     DerivedPoint that = (DerivedPoint) obj;
-    if (this.sampleHeight == that.sampleHeight) return 0;
+    if (this.sampleHeight == that.sampleHeight) {
+      return 0;
+    }
 
     return (this.sampleHeight < that.sampleHeight ? -1 : 1);
   }
 
+  @Override
   public String toString() {
     return "pressure: "
         + pressure
