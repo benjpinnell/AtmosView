@@ -13,37 +13,37 @@ public class SoundingData extends ArrayList<SoundingPoint> {
   // /< The time of this SoundingData
   private static final long serialVersionUID = 1L;
 
-  private GregorianCalendar m_date_time; 
-
-  private String m_stationName; // /< The station name from which this SoundingData's data came
+  private GregorianCalendar dateTime;
+  // /< The station name from which this SoundingData's data came
+  private String stationName;
 
   /**
-   * Constructor
+   * Constructor.
    *
-   * @param date_time the time of the sounding
+   * @param dateTime the time of the sounding
    */
-  public SoundingData(GregorianCalendar date_time) {
-    m_date_time = (GregorianCalendar) date_time.clone();
-    m_stationName = "Unknown location";
+  public SoundingData(GregorianCalendar dateTime) {
+    this.dateTime = (GregorianCalendar) dateTime.clone();
+    stationName = "Unknown location";
   }
 
-  /** returns the time of the sounding */
+  /** Returns the time of the sounding. */
   public GregorianCalendar getTime() {
-    return (GregorianCalendar) m_date_time.clone();
+    return (GregorianCalendar) this.dateTime.clone();
   }
 
   /**
-   * Sets the station name for this sounding
+   * Sets the station name for this sounding.
    *
    * @param stationName the name of the station from which this SoundingData's data came
    */
   public void setStationName(String stationName) {
-    m_stationName = stationName;
+    this.stationName = stationName;
   }
 
-  /** Returns the station name */
+  /** Returns the station name. */
   public String getStationName() {
-    return m_stationName;
+    return stationName;
   }
 
   /**
@@ -52,13 +52,13 @@ public class SoundingData extends ArrayList<SoundingPoint> {
    */
   public String timeString() {
     return ""
-        + m_date_time.get(GregorianCalendar.YEAR)
+        + this.dateTime.get(GregorianCalendar.YEAR)
         + "-"
-        + (m_date_time.get(GregorianCalendar.MONTH) + 1)
+        + (this.dateTime.get(GregorianCalendar.MONTH) + 1)
         + "-"
-        + m_date_time.get(GregorianCalendar.DATE)
+        + this.dateTime.get(GregorianCalendar.DATE)
         + " "
-        + m_date_time.get(GregorianCalendar.HOUR_OF_DAY)
+        + this.dateTime.get(GregorianCalendar.HOUR_OF_DAY)
         + " UTC";
   }
 
@@ -80,7 +80,7 @@ public class SoundingData extends ArrayList<SoundingPoint> {
   /** Returns a deep copy of this SoundingData object. */
   public Object clone() {
     SoundingData copy = (SoundingData) super.clone();
-    copy.m_date_time = (GregorianCalendar) m_date_time.clone();
+    copy.dateTime = (GregorianCalendar) this.dateTime.clone();
 
     return copy;
   }
