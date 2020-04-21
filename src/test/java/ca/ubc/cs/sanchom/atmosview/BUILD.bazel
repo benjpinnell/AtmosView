@@ -1,0 +1,10 @@
+load("//:junit5.bzl", "java_junit5_test")
+
+java_junit5_test(
+    name = "tests",
+    srcs = glob(["*Test.java"]),
+    test_package = "ca.ubc.cs.sanchom.atmosview",
+    deps = [
+        "//src/main/java/ca/ubc/cs/sanchom/atmosview:lib",
+    ],
+)

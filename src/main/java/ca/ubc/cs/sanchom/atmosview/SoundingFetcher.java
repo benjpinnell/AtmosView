@@ -1,4 +1,4 @@
-package ca.ubc.cs.sanchom.AtmosView;
+package ca.ubc.cs.sanchom.atmosview;
 
 import java.io.BufferedReader;
 import java.io.IOException;

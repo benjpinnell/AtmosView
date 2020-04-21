@@ -4,6 +4,9 @@ java_library(
         ["*.java"],
         exclude = ["AtmosView.java"],
     ),
+    visibility = [
+        "//src/test/java/ca/ubc/cs/sanchom/atmosview:__subpackages__",
+    ],
     deps = [
         "@maven//:com_toedter_jcalendar",
     ],
@@ -12,7 +15,7 @@ java_library(
 java_binary(
     name = "AtmosView",
     srcs = ["AtmosView.java"],
-    main_class = "ca.ubc.cs.sanchom.AtmosView.AtmosView",
+    main_class = "ca.ubc.cs.sanchom.atmosview.AtmosView",
     deps = [
         ":lib",
     ],
