@@ -67,37 +67,37 @@ public class BarPanel extends JPanel {
   public static final Color WIND_FULL_COLOUR = new Color(0f, 0f, 0f, 1f);
 
   // Axes bounds
-  private final int MIN_X = 0;
-  private final int MAX_X = 40;
-  private final int MAX_HEIGHT = 15000; // in metres
-  private final int X_TICK_STEP = 5;
-  private final int Y_TICK_STEP = 1000;
+  private static final int MIN_X = 0;
+  private static final int MAX_X = 40;
+  private static final int MAX_HEIGHT = 15000; // in metres
+  private static final int X_TICK_STEP = 5;
+  private static final int Y_TICK_STEP = 1000;
 
   // Layout details
-  private final int TOP_MARGIN = 50;
-  private final int BOTTOM_MARGIN = 50;
-  private final int LEFT_MARGIN = 150;
-  private final int RIGHT_MARGIN = 100;
-  private final double TICK_SIZE = 5;
-  private final int Y_AXIS_ROOM = 60;
-  public final int TRIANGLE_WIDTH = 6;
-  private final int TRIANGLE_OFFSET = 20;
-  public final int TRIANGLE_HEIGHT = 300; // in metres
+  private static final int TOP_MARGIN = 50;
+  private static final int BOTTOM_MARGIN = 50;
+  private static final int LEFT_MARGIN = 150;
+  private static final int RIGHT_MARGIN = 100;
+  private static final double TICK_SIZE = 5;
+  private static final int Y_AXIS_ROOM = 60;
+  public static final int TRIANGLE_WIDTH = 6;
+  private static final int TRIANGLE_OFFSET = 20;
+  public static final int TRIANGLE_HEIGHT = 300; // in metres
 
-  private final int WIND_OFFSET = 10;
+  private static final int WIND_OFFSET = 10;
   public static final int PIVOT_SIZE = 5;
-  private final int WIND_DOWNSCALE =
+  private static final int WIND_DOWNSCALE =
       5; /// < The down-scale factor from windspeed to pixel length for the wind markers
-  private final int WIND_STEP = 1000; // /< The interval in metres between wind drawing
+  private static final int WIND_STEP = 1000; // /< The interval in metres between wind drawing
 
   private int actualLeftMargin = 0;
   private int actualRightMargin = 0;
   private int actualYAxisRoom = 0;
 
-  private Line2D xAxis = null;
-  private Line2D yAxis = null;
-  private Vector<Line2D> xTicks = null;
-  private Vector<Line2D> yTicks = null;
+  private Line2D axisX = null;
+  private Line2D axisY = null;
+  private Vector<Line2D> ticksX = null;
+  private Vector<Line2D> ticksY = null;
 
   private class InterestingAltitude {
     public InterestingAltitude(String label, int altitude, Point2D loc) {
@@ -116,8 +116,8 @@ public class BarPanel extends JPanel {
   private Vector<InterestingAltitude>
       interestingAltitudes; /// < Add altitudes to this list to have them marked
 
-  private Point2D xLabelLoc = null; // /< Where the axis label is centred
-  private Point2D yLabelLoc = null; // /< Where the axis label is centred
+  private Point2D labelLocX = null; // /< Where the axis label is centred
+  private Point2D labelLocY = null; // /< Where the axis label is centred
   private String title = null;
   private Point2D titleLoc = null; // /< Where the title goes
 
@@ -125,8 +125,8 @@ public class BarPanel extends JPanel {
   private Vector<Line2D> stratusLayerLines = null;
   private Vector<GeneralPath> cumulusLiftedTriangles = null;
   private Vector<GeneralPath> freeConvectionTriangles = null;
-  private Line2D CCL_Line = null;
-  private Line2D CT_Line = null;
+  private Line2D cclLine = null;
+  private Line2D ctLine = null;
 
   private Vector<Line2D> windLines = null;
   private Vector<Ellipse2D> windPivots = null;
@@ -135,15 +135,15 @@ public class BarPanel extends JPanel {
   private Vector<Rectangle2D> indexMarkerFrames;
   private Vector<Rectangle2D> indexBars;
 
-  private double KINX_MAX = 40;
-  private double LIFTED_MAX = 10;
-  private double CTOT_MAX = 30;
-  private double VTOT_MAX = 35;
-  private double SWEAT_MAX = 600;
-  private double BRCH_MAX = 100;
+  private static final double KINX_MAX = 40;
+  private static final double LIFTED_MAX = 10;
+  private static final double CTOT_MAX = 30;
+  private static final double VTOT_MAX = 35;
+  private static final double SWEAT_MAX = 600;
+  private static final double BRCH_MAX = 100;
 
-  private SoundingData m_data = null;
-  private DerivedData m_derived = null;
+  private SoundingData data = null;
+  private DerivedData derived = null;
 
   /**
    * Gives this widget a reference to the original sounding data. This will allow updating of this
@@ -153,14 +153,14 @@ public class BarPanel extends JPanel {
    * @param data the original sounding data
    */
   public void linkSoundingData(SoundingData data) {
-    m_data = data;
-    m_derived = new DerivedData(m_data);
+    this.data = data;
+    this.derived = new DerivedData(this.data);
 
     updateShapes();
   }
 
   public SoundingData getSoundingData() {
-    return m_data;
+    return this.data;
   }
 
   /** Triggers an update of the shape objects. */
@@ -170,7 +170,7 @@ public class BarPanel extends JPanel {
     actualYAxisRoom = (int) (Y_AXIS_ROOM * scaling);
     actualRightMargin = (int) (RIGHT_MARGIN * scaling);
 
-    Point2D TRANSLATED_ORIGIN =
+    Point2D translatedOrigin =
         new Point2D.Double(actualLeftMargin, getSize().height - BOTTOM_MARGIN);
 
     // This transform is only for the drawing, not zoom and pan.
@@ -181,27 +181,27 @@ public class BarPanel extends JPanel {
             0,
             0,
             -(getSize().height - BOTTOM_MARGIN - TOP_MARGIN) / (float) MAX_HEIGHT,
-            TRANSLATED_ORIGIN.getX(),
-            TRANSLATED_ORIGIN.getY());
+            translatedOrigin.getX(),
+            translatedOrigin.getY());
 
     // Make the axes and ticks
-    yAxis =
+    axisY =
         new Line2D.Double(
             tx.transform(new Point2D.Double(MIN_X, 0), null),
             tx.transform(new Point2D.Double(MIN_X, MAX_HEIGHT), null));
-    xAxis =
+    axisX =
         new Line2D.Double(
             tx.transform(new Point2D.Double(MIN_X, 0), null),
             tx.transform(new Point2D.Double(MAX_X, 0), null));
 
-    yTicks = new Vector<Line2D>();
-    xTicks = new Vector<Line2D>();
+    ticksY = new Vector<Line2D>();
+    ticksX = new Vector<Line2D>();
     for (int j = Y_TICK_STEP; j <= MAX_HEIGHT; j += Y_TICK_STEP) {
       Point2D loc = new Point2D.Double();
 
       tx.transform(new Point2D.Double(MIN_X, j), loc);
 
-      yTicks.add(
+      ticksY.add(
           new Line2D.Double(
               loc.getX() - TICK_SIZE / 2, loc.getY(), loc.getX() + TICK_SIZE / 2, loc.getY()));
     }
@@ -211,17 +211,17 @@ public class BarPanel extends JPanel {
 
       tx.transform(new Point2D.Double(j, 0), loc);
 
-      xTicks.add(
+      ticksX.add(
           new Line2D.Double(
               loc.getX(), loc.getY() + TICK_SIZE / 2, loc.getX(), loc.getY() - TICK_SIZE / 2));
     }
 
-    xLabelLoc =
+    labelLocX =
         new Point2D.Double(
             tx.transform(new Point2D.Double(MAX_X / 2, 0), null).getX(),
             getSize().height - 15 / 2f);
 
-    yLabelLoc =
+    labelLocY =
         new Point2D.Double(20, tx.transform(new Point2D.Double(0, MAX_HEIGHT / 2), null).getY());
     titleLoc = new Point2D.Double(getWidth() / 2, 25);
 
@@ -240,7 +240,7 @@ public class BarPanel extends JPanel {
               markerFrameHeight));
     }
 
-    if (m_data != null) {
+    if (this.data != null) {
       derivedSpreads = new Vector<Rectangle2D>();
       stratusLayerLines = new Vector<Line2D>();
       freeConvectionTriangles = new Vector<GeneralPath>();
@@ -250,7 +250,7 @@ public class BarPanel extends JPanel {
       windPivots = new Vector<Ellipse2D>();
       windSpeeds = new Vector<Integer>();
 
-      title = m_data.getStationName();
+      title = this.data.getStationName();
 
       double canvasTriangleSize =
           tx.transform(new Point2D.Double(0, 0), null).getY()
@@ -258,13 +258,13 @@ public class BarPanel extends JPanel {
 
       int previousTriangleHeight = 0;
 
-      for (int i = 0; i < m_derived.size(); i++) {
-        DerivedPoint p = m_derived.get(i);
+      for (int i = 0; i < this.derived.size(); i++) {
+        DerivedPoint p = this.derived.get(i);
 
         Point2D z = new Point2D.Double();
         Point2D w = new Point2D.Double();
         tx.transform(new Point2D.Double(0, p.getSampleHeight()), z);
-        tx.transform(new Point2D.Double(0, p.getSampleHeight() + m_derived.getSampleStep()), w);
+        tx.transform(new Point2D.Double(0, p.getSampleHeight() + this.derived.getSampleStep()), w);
         double barHeight = z.getY() - w.getY();
 
         if (p.getSampleHeight() < MAX_HEIGHT) {
@@ -285,7 +285,7 @@ public class BarPanel extends JPanel {
 
           tx.transform(new Point2D.Double(0, p.getSampleHeight()), transformedBase);
           tx.transform(
-              new Point2D.Double(0, p.getSampleHeight() + m_derived.getSampleStep()),
+              new Point2D.Double(0, p.getSampleHeight() + this.derived.getSampleStep()),
               transformedEnd);
 
           // TODO: make these shifts of lines consts
@@ -300,8 +300,9 @@ public class BarPanel extends JPanel {
           }
 
           // Make triangles
-          if (p.getSampleHeight() >= m_derived.getLCL()
-              && (Double.isNaN(m_derived.getLFC()) || p.getSampleHeight() < m_derived.getLFC())) {
+          if (p.getSampleHeight() >= this.derived.getLCL()
+              && (Double.isNaN(this.derived.getLFC())
+                  || p.getSampleHeight() < this.derived.getLFC())) {
             if (p.getSampleHeight() >= previousTriangleHeight + TRIANGLE_HEIGHT) {
               GeneralPath triangle = new GeneralPath(GeneralPath.WIND_NON_ZERO);
 
@@ -323,8 +324,9 @@ public class BarPanel extends JPanel {
               previousTriangleHeight = (int) p.getSampleHeight();
             }
 
-          } else if (p.getSampleHeight() >= m_derived.getLFC()
-              && (Double.isNaN(m_derived.getEL()) || p.getSampleHeight() < m_derived.getEL())) {
+          } else if (p.getSampleHeight() >= this.derived.getLFC()
+              && (Double.isNaN(this.derived.getEL())
+                  || p.getSampleHeight() < this.derived.getEL())) {
             if (p.getSampleHeight() >= previousTriangleHeight + TRIANGLE_HEIGHT) {
               GeneralPath triangle = new GeneralPath(GeneralPath.WIND_NON_ZERO);
 
@@ -350,10 +352,10 @@ public class BarPanel extends JPanel {
       }
 
       // Add line for the convective condensation level
-      double CCL = m_derived.getCCL();
+      double ccl = this.derived.getCCL();
       Point2D transformed = new Point2D.Double();
-      tx.transform(new Point2D.Double(0, CCL), transformed);
-      CCL_Line =
+      tx.transform(new Point2D.Double(0, ccl), transformed);
+      cclLine =
           new Line2D.Double(
               transformed.getX() - 5,
               transformed.getY(),
@@ -361,37 +363,37 @@ public class BarPanel extends JPanel {
               transformed.getY());
 
       // Add line for the convective temperature
-      double CT = m_derived.getConvectiveTemperatureRise();
-      tx.transform(new Point2D.Double(CT, 0), transformed);
-      CT_Line =
+      double ct = this.derived.getConvectiveTemperatureRise();
+      tx.transform(new Point2D.Double(ct, 0), transformed);
+      ctLine =
           new Line2D.Double(
               transformed.getX(),
               transformed.getY() - 5,
               transformed.getX(),
               transformed.getY() + 5);
 
-      if (!Double.isNaN(m_derived.getLFC())) {
+      if (!Double.isNaN(this.derived.getLFC())) {
         Point2D loc = new Point2D.Double();
-        tx.transform(new Point2D.Double(MIN_X, m_derived.getLFC()), loc);
-        interestingAltitudes.add(new InterestingAltitude("LFC", (int) m_derived.getLFC(), loc));
+        tx.transform(new Point2D.Double(MIN_X, this.derived.getLFC()), loc);
+        interestingAltitudes.add(new InterestingAltitude("LFC", (int) this.derived.getLFC(), loc));
       }
 
-      if (!Double.isNaN(m_derived.getCCL())) {
+      if (!Double.isNaN(this.derived.getCCL())) {
         Point2D loc = new Point2D.Double();
-        tx.transform(new Point2D.Double(MIN_X, m_derived.getCCL()), loc);
-        interestingAltitudes.add(new InterestingAltitude("CCL", (int) m_derived.getCCL(), loc));
+        tx.transform(new Point2D.Double(MIN_X, this.derived.getCCL()), loc);
+        interestingAltitudes.add(new InterestingAltitude("CCL", (int) this.derived.getCCL(), loc));
       }
 
-      if (!Double.isNaN(m_derived.getLCL())) {
+      if (!Double.isNaN(this.derived.getLCL())) {
         Point2D loc = new Point2D.Double();
-        tx.transform(new Point2D.Double(MIN_X, m_derived.getLCL()), loc);
-        interestingAltitudes.add(new InterestingAltitude("LCL", (int) m_derived.getLCL(), loc));
+        tx.transform(new Point2D.Double(MIN_X, this.derived.getLCL()), loc);
+        interestingAltitudes.add(new InterestingAltitude("LCL", (int) this.derived.getLCL(), loc));
       }
 
-      if (!Double.isNaN(m_derived.getEL()) && m_derived.getEL() <= MAX_HEIGHT) {
+      if (!Double.isNaN(this.derived.getEL()) && this.derived.getEL() <= MAX_HEIGHT) {
         Point2D loc = new Point2D.Double();
-        tx.transform(new Point2D.Double(MIN_X, m_derived.getEL()), loc);
-        interestingAltitudes.add(new InterestingAltitude("EQL", (int) m_derived.getEL(), loc));
+        tx.transform(new Point2D.Double(MIN_X, this.derived.getEL()), loc);
+        interestingAltitudes.add(new InterestingAltitude("EQL", (int) this.derived.getEL(), loc));
       }
 
       Collections.sort(
@@ -406,56 +408,50 @@ public class BarPanel extends JPanel {
           new Rectangle2D.Double(
               getWidth() - actualRightMargin / 2 + WIND_OFFSET,
               getHeight() / 2 + markerFrameHeight * -10,
-              Math.min(markerSize, markerSize * (m_derived.getKINX() / KINX_MAX)),
+              Math.min(markerSize, markerSize * (this.derived.getKINX() / KINX_MAX)),
               markerFrameHeight));
       indexBars.add(
           new Rectangle2D.Double(
               getWidth() - actualRightMargin / 2 + WIND_OFFSET,
               getHeight() / 2 + markerFrameHeight * -6,
-              Math.min(markerSize, markerSize * (-m_derived.getLIFTED_INDEX() / LIFTED_MAX)),
+              Math.min(markerSize, markerSize * (-this.derived.getLIFTED_INDEX() / LIFTED_MAX)),
               markerFrameHeight));
       indexBars.add(
           new Rectangle2D.Double(
               getWidth() - actualRightMargin / 2 + WIND_OFFSET,
               getHeight() / 2 + markerFrameHeight * -2,
-              Math.min(markerSize, markerSize * (m_derived.getCROSS_TOTALS_INDEX() / CTOT_MAX)),
+              Math.min(markerSize, markerSize * (this.derived.getCROSS_TOTALS_INDEX() / CTOT_MAX)),
               markerFrameHeight));
       indexBars.add(
           new Rectangle2D.Double(
               getWidth() - actualRightMargin / 2 + WIND_OFFSET,
               getHeight() / 2 + markerFrameHeight * 2,
-              Math.min(markerSize, markerSize * (m_derived.getVERTICAL_TOTALS_INDEX() / VTOT_MAX)),
+              Math.min(
+                  markerSize, markerSize * (this.derived.getVERTICAL_TOTALS_INDEX() / VTOT_MAX)),
               markerFrameHeight));
       indexBars.add(
           new Rectangle2D.Double(
               getWidth() - actualRightMargin / 2 + WIND_OFFSET,
               getHeight() / 2 + markerFrameHeight * 6,
-              Math.min(markerSize, markerSize * (m_derived.getSWEAT() / SWEAT_MAX)),
+              Math.min(markerSize, markerSize * (this.derived.getSWEAT() / SWEAT_MAX)),
               markerFrameHeight));
       indexBars.add(
           new Rectangle2D.Double(
               getWidth() - actualRightMargin / 2 + WIND_OFFSET,
               getHeight() / 2 + markerFrameHeight * 10,
-              Math.min(markerSize, markerSize * (m_derived.getBRCH() / BRCH_MAX)),
+              Math.min(markerSize, markerSize * (this.derived.getBRCH() / BRCH_MAX)),
               markerFrameHeight));
 
       for (int height = 0;
-          height < Math.min(MAX_HEIGHT, m_derived.maxHeight());
+          height < Math.min(MAX_HEIGHT, this.derived.maxHeight());
           height += WIND_STEP) {
-        double clampedHeight = Math.max(height, m_derived.minHeight());
-        DerivedPoint p = m_derived.getDataFromHeight(clampedHeight);
-        double speed = p.getSpeed();
+        double clampedHeight = Math.max(height, this.derived.minHeight());
+        DerivedPoint p = this.derived.getDataFromHeight(clampedHeight);
         double clockwiseFromNorth = p.getDirection();
         double counterclockwiseFromXAxis = 90 - clockwiseFromNorth;
         if (counterclockwiseFromXAxis < 0) {
           counterclockwiseFromXAxis += 360;
         }
-        double radians = Math.toRadians(counterclockwiseFromXAxis);
-
-        double xDiff = (speed / WIND_DOWNSCALE) * Math.cos(radians);
-        double yDiff =
-            (speed / WIND_DOWNSCALE)
-                * -Math.sin(radians); // negative because the Y axis is upside down in drawing
 
         Point2D loc = new Point2D.Double();
         tx.transform(new Point2D.Double(MAX_X, clampedHeight), loc);
@@ -467,16 +463,22 @@ public class BarPanel extends JPanel {
                 loc.getY() - PIVOT_SIZE / 2f,
                 PIVOT_SIZE,
                 PIVOT_SIZE));
+
+        double speed = p.getSpeed();
+        double radians = Math.toRadians(counterclockwiseFromXAxis);
+        double diffX = (speed / WIND_DOWNSCALE) * Math.cos(radians);
+        double diffY =
+            (speed / WIND_DOWNSCALE)
+                * -Math.sin(radians); // negative because the Y axis is upside down in drawing
+
         windLines.add(
-            new Line2D.Double(loc.getX(), loc.getY(), loc.getX() + xDiff, loc.getY() + yDiff));
+            new Line2D.Double(loc.getX(), loc.getY(), loc.getX() + diffX, loc.getY() + diffY));
         windSpeeds.add(new Integer((int) speed));
       }
     }
   }
 
-  /* (non-Javadoc)
-   * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-   */
+  /** Paint the component. */
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
     Graphics2D g2 = (Graphics2D) g;
@@ -496,37 +498,37 @@ public class BarPanel extends JPanel {
 
     // TODO: Use canvas transformations to allow pan and zoom
     g2.setColor(AXIS_COLOUR);
-    if (yAxis != null && xAxis != null) {
-      g2.draw(yAxis);
-      g2.draw(xAxis);
+    if (axisY != null && axisX != null) {
+      g2.draw(axisY);
+      g2.draw(axisX);
     }
 
-    if (yTicks != null) {
+    if (ticksY != null) {
 
-      for (int i = 0; i < yTicks.size(); i++) {
+      for (int i = 0; i < ticksY.size(); i++) {
         g2.setColor(AXIS_COLOUR);
-        g2.draw(yTicks.get(i));
-        if (i == yTicks.size() - 1) {
+        g2.draw(ticksY.get(i));
+        if (i == ticksY.size() - 1) {
           g2.setColor(GENERIC_LABEL_COLOUR);
           String tickLabel = new String("" + (i + 1) * Y_TICK_STEP);
           Rectangle2D bounds = g2.getFont().getStringBounds(tickLabel, g2.getFontRenderContext());
 
           g2.drawString(
               tickLabel,
-              (int) (yTicks.get(i).getP1().getX() - (bounds.getWidth() + TRIANGLE_OFFSET + 3)),
-              (int) (yTicks.get(i).getP1().getY() + bounds.getHeight() / 2));
+              (int) (ticksY.get(i).getP1().getX() - (bounds.getWidth() + TRIANGLE_OFFSET + 3)),
+              (int) (ticksY.get(i).getP1().getY() + bounds.getHeight() / 2));
         }
       }
     }
 
-    if (yLabelLoc != null) {
+    if (labelLocY != null) {
+      g2.setColor(AXIS_COLOUR);
+      g2.translate(labelLocY.getX(), labelLocY.getY());
+      g2.rotate(-Math.PI / 2);
 
       TextLayout layout = new TextLayout("Altitude (m)", g2.getFont(), g2.getFontRenderContext());
-      AffineTransform orig = g2.getTransform();
-      g2.setColor(AXIS_COLOUR);
-      g2.translate(yLabelLoc.getX(), yLabelLoc.getY());
-      g2.rotate(-Math.PI / 2);
       layout.draw(g2, -layout.getAdvance() / 2, 0);
+      AffineTransform orig = g2.getTransform();
       g2.setTransform(orig);
     }
 
@@ -596,10 +598,10 @@ public class BarPanel extends JPanel {
       }
     }
 
-    if (xTicks != null) {
+    if (ticksX != null) {
       g2.setColor(AXIS_COLOUR);
-      for (int i = 0; i < xTicks.size(); i++) {
-        g2.draw(xTicks.get(i));
+      for (int i = 0; i < ticksX.size(); i++) {
+        g2.draw(ticksX.get(i));
         String tickLabel = new String("" + (MIN_X + i * X_TICK_STEP));
 
         if (i % 2 == 0) {
@@ -607,15 +609,15 @@ public class BarPanel extends JPanel {
 
           g2.drawString(
               tickLabel,
-              (int) (xTicks.get(i).getP1().getX() - bounds.getWidth() / 2.0),
-              (int) (xTicks.get(i).getP1().getY() + bounds.getHeight() + 5));
+              (int) (ticksX.get(i).getP1().getX() - bounds.getWidth() / 2.0),
+              (int) (ticksX.get(i).getP1().getY() + bounds.getHeight() + 5));
         }
       }
 
-      String xLabel = new String("Temperature-Dewpoint Spread (\u00B0C)");
-      Rectangle2D bounds = g2.getFont().getStringBounds(xLabel, g2.getFontRenderContext());
+      String labelX = new String("Temperature-Dewpoint Spread (°C)");
+      Rectangle2D bounds = g2.getFont().getStringBounds(labelX, g2.getFontRenderContext());
       g2.drawString(
-          xLabel, (int) (xLabelLoc.getX() - bounds.getWidth() / 2f), (int) xLabelLoc.getY());
+          labelX, (int) (labelLocX.getX() - bounds.getWidth() / 2f), (int) labelLocX.getY());
     }
 
     if (title != null) {
@@ -626,7 +628,7 @@ public class BarPanel extends JPanel {
 
     if (derivedSpreads != null) {
       for (int i = 0; i < derivedSpreads.size(); i++) {
-        double x = m_derived.get(i).getLiftedDiff();
+        double x = this.derived.get(i).getLiftedDiff();
 
         // Interpolate the colour of the temperature/dewpoint bar based on
         // convective potential.
@@ -646,12 +648,12 @@ public class BarPanel extends JPanel {
     }
 
     if (stratusLayerLines != null) {
-      Stroke orig = g2.getStroke();
       g2.setStroke(new BasicStroke(5));
       g2.setColor(STRATUS_COLOUR);
       for (int i = 0; i < stratusLayerLines.size(); i++) {
         g2.draw(stratusLayerLines.get(i));
       }
+      Stroke orig = g2.getStroke();
       g2.setStroke(orig);
     }
 
@@ -669,19 +671,19 @@ public class BarPanel extends JPanel {
       }
     }
 
-    if (CCL_Line != null) {
+    if (cclLine != null) {
       Stroke orig = g2.getStroke();
       g2.setStroke(new BasicStroke(3));
       g2.setColor(CCL_COLOUR);
-      g2.draw(CCL_Line);
+      g2.draw(cclLine);
       g2.setStroke(orig);
     }
 
-    if (CT_Line != null) {
+    if (ctLine != null) {
       Stroke orig = g2.getStroke();
       g2.setStroke(new BasicStroke(3));
       g2.setColor(CT_COLOUR);
-      g2.draw(CT_Line);
+      g2.draw(ctLine);
       g2.setStroke(orig);
     }
 
@@ -716,7 +718,7 @@ public class BarPanel extends JPanel {
       }
     }
 
-    if (m_derived != null) {
+    if (this.derived != null) {
       g2.setColor(Color.BLACK);
 
       String label = null;
@@ -739,7 +741,7 @@ public class BarPanel extends JPanel {
             (float) (indexMarkerFrames.get(0).getMinY() - 1));
         g2.setColor(
             getInterpolatedColour(
-                INDEX_LOW_COLOUR, INDEX_HIGH_COLOUR, 0, KINX_MAX, m_derived.getKINX()));
+                INDEX_LOW_COLOUR, INDEX_HIGH_COLOUR, 0, KINX_MAX, this.derived.getKINX()));
         g2.fill(indexBars.get(0));
 
         g2.setColor(GENERIC_LABEL_COLOUR);
@@ -751,7 +753,11 @@ public class BarPanel extends JPanel {
             (float) (indexMarkerFrames.get(1).getMinY() - 1));
         g2.setColor(
             getInterpolatedColour(
-                INDEX_LOW_COLOUR, INDEX_HIGH_COLOUR, 0, LIFTED_MAX, -m_derived.getLIFTED_INDEX()));
+                INDEX_LOW_COLOUR,
+                INDEX_HIGH_COLOUR,
+                0,
+                LIFTED_MAX,
+                -this.derived.getLIFTED_INDEX()));
         g2.fill(indexBars.get(1));
 
         g2.setColor(GENERIC_LABEL_COLOUR);
@@ -767,7 +773,7 @@ public class BarPanel extends JPanel {
                 INDEX_HIGH_COLOUR,
                 0,
                 CTOT_MAX,
-                m_derived.getCROSS_TOTALS_INDEX()));
+                this.derived.getCROSS_TOTALS_INDEX()));
         g2.fill(indexBars.get(2));
 
         g2.setColor(GENERIC_LABEL_COLOUR);
@@ -783,7 +789,7 @@ public class BarPanel extends JPanel {
                 INDEX_HIGH_COLOUR,
                 0,
                 VTOT_MAX,
-                m_derived.getVERTICAL_TOTALS_INDEX()));
+                this.derived.getVERTICAL_TOTALS_INDEX()));
         g2.fill(indexBars.get(3));
 
         g2.setColor(GENERIC_LABEL_COLOUR);
@@ -795,7 +801,7 @@ public class BarPanel extends JPanel {
             (float) (indexMarkerFrames.get(4).getMinY() - 1));
         g2.setColor(
             getInterpolatedColour(
-                INDEX_LOW_COLOUR, INDEX_HIGH_COLOUR, 0, SWEAT_MAX, m_derived.getSWEAT()));
+                INDEX_LOW_COLOUR, INDEX_HIGH_COLOUR, 0, SWEAT_MAX, this.derived.getSWEAT()));
         g2.fill(indexBars.get(4));
 
         g2.setColor(GENERIC_LABEL_COLOUR);
@@ -807,7 +813,7 @@ public class BarPanel extends JPanel {
             (float) (indexMarkerFrames.get(5).getMinY() - 1));
         g2.setColor(
             getInterpolatedColour(
-                INDEX_LOW_COLOUR, INDEX_HIGH_COLOUR, 0, BRCH_MAX, m_derived.getBRCH()));
+                INDEX_LOW_COLOUR, INDEX_HIGH_COLOUR, 0, BRCH_MAX, this.derived.getBRCH()));
         g2.fill(indexBars.get(5));
       }
 

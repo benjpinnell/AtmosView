@@ -7,7 +7,8 @@ package ca.ubc.cs.sanchom.atmosview;
  */
 public class AtmosView {
 
-  public static void main(String args[]) {
+  /** Entry point for AtmosView viewer. */
+  public static void main(String[] args) {
     MainFrame m = new MainFrame();
     m.setVisible(true);
 
