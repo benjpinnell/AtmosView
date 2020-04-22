@@ -2,6 +2,7 @@ package ca.ubc.cs.sanchom.atmosview;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -34,23 +35,32 @@ public class SoundingPanel extends JPanel {
 
   private static final int MIN_TEMP = -100;
   private static final int MAX_TEMP = 45;
-  private static final int MAX_HEIGHT = 15000; // metres metres
+  private static final int TOTAL_TEMP_RANGE = MAX_TEMP - MIN_TEMP;
+
+  private static final int MAX_ALTITUDE_IN_METERS = 15000; // metres metres
+
   private static final int X_TICK_STEP = 20;
   private static final int Y_TICK_STEP = 1000;
+
+  private static final int TOP_MARGIN = 50;
+  private static final int BOTTOM_MARGIN = 50;
+  private static final int TOTAL_VERTICAL_MARGIN = TOP_MARGIN + BOTTOM_MARGIN;
+
+  private static final int LEFT_MARGIN = 100;
+  private static final int RIGHT_MARGIN = 50;
+  private static final int TOTAL_HORIZONTAL_MARGIN = LEFT_MARGIN + RIGHT_MARGIN;
+
+  private static final int TICK_SIZE = 5;
 
   private Point2D labelLocX = null;
   private Point2D labelLocY = null;
 
   private Point2D titleLoc = null;
 
-  private static final int TOP_MARGIN = 50;
-  private static final int BOTTOM_MARGIN = 50;
-  private static final int LEFT_MARGIN = 100;
-  private static final int RIGHT_MARGIN = 50;
-  private static final int TICK_SIZE = 5;
-
-  private Line2D axisX = null;
-  private Line2D axisY = null;
+  // private Line2D axisX = null;
+  // private Line2D axisY = null;
+  private Line2D.Double axisX = null;
+  private Line2D.Double axisY = null;
   private Vector<Line2D> ticksX = null;
   private Vector<Line2D> ticksY = null;
 
@@ -77,24 +87,52 @@ public class SoundingPanel extends JPanel {
 
   /** Triggers an update of the shape objects. */
   public void updateShapes() {
+    Dimension panelSize = getSize();
     Point2D translatedOrigin =
-        new Point2D.Double(getSize().width * 0.66f, getSize().height - BOTTOM_MARGIN);
+        new Point2D.Double(panelSize.width * 0.66f, panelSize.height - BOTTOM_MARGIN);
 
     // This transform is only for the drawing, not zoom and pan.
     // This allows quick change from temp-height space to canvas space.
-    AffineTransform tx =
-        new AffineTransform(
-            (getSize().width - RIGHT_MARGIN - LEFT_MARGIN) / (float) (MAX_TEMP - MIN_TEMP),
-            0,
-            0,
-            -(getSize().height - BOTTOM_MARGIN - TOP_MARGIN) / (float) MAX_HEIGHT,
-            translatedOrigin.getX(),
-            translatedOrigin.getY());
+
+    // Helpful visual reference for affine transforms:
+    // https://en.wikipedia.org/wiki/Affine_transformation#/media/File:2D_affine_transformation_matrix.svg
+    //
+    //  Scale about origin
+    //       ^                       Affine Transform Matrix
+    //       |                       W 0 0
+    //       |      (W,H)            0 H 0
+    //  (0,H)|-----|                 0 0 1
+    //      1|--   |
+    //       |_|___|___________>     NOTE: (W,0) => W    (0,H) => 0
+    //  (0,0)  1    (W,0)                           0             H
+    //
+    //  Translate
+    //       ^                       Affine Transform Matrix
+    //       |                       1 0 X
+    //       |  |-----|              0 1 Y
+    //      1|--|--|  |              0 0 1
+    //       |  |__|__|
+    //       |(X,Y)|___________>
+    //      0      1
+    //
+    double affineW = (panelSize.width - TOTAL_HORIZONTAL_MARGIN) / (double) TOTAL_TEMP_RANGE;
+    double affineH = -(panelSize.height - TOTAL_VERTICAL_MARGIN) / (double) MAX_ALTITUDE_IN_METERS;
+    double affineX = translatedOrigin.getX();
+    double affineY = translatedOrigin.getY();
+    AffineTransform tx = new AffineTransform(affineW, 0, 0, affineH, affineX, affineY);
+    // AffineTransform tx =
+    // new AffineTransform(
+    // (panelSize.width - TOTAL_HORIZONTAL_MARGIN) / (float) TOTAL_TEMP_RANGE,
+    // 0,
+    // 0,
+    // -(panelSize.height - BOTTOM_MARGIN - TOP_MARGIN) / (float) MAX_ALTITUDE_IN_METERS,
+    // translatedOrigin.getX(),
+    // translatedOrigin.getY());
 
     axisY =
         new Line2D.Double(
             tx.transform(new Point2D.Double(MIN_TEMP, 0), null),
-            tx.transform(new Point2D.Double(MIN_TEMP, MAX_HEIGHT), null));
+            tx.transform(new Point2D.Double(MIN_TEMP, MAX_ALTITUDE_IN_METERS), null));
     axisX =
         new Line2D.Double(
             tx.transform(new Point2D.Double(MIN_TEMP, 0), null),
@@ -102,7 +140,7 @@ public class SoundingPanel extends JPanel {
 
     ticksY = new Vector<Line2D>();
     ticksX = new Vector<Line2D>();
-    for (int j = Y_TICK_STEP; j <= MAX_HEIGHT; j += Y_TICK_STEP) {
+    for (int j = Y_TICK_STEP; j <= MAX_ALTITUDE_IN_METERS; j += Y_TICK_STEP) {
       Point2D loc = new Point2D.Double();
 
       tx.transform(new Point2D.Double(MIN_TEMP, j), loc);
@@ -125,10 +163,11 @@ public class SoundingPanel extends JPanel {
     labelLocX =
         new Point2D.Double(
             tx.transform(new Point2D.Double((MAX_TEMP + MIN_TEMP) / 2f, 0), null).getX(),
-            getSize().height - 15 / 2f);
+            panelSize.height - 15 / 2f);
 
     labelLocY =
-        new Point2D.Double(20, tx.transform(new Point2D.Double(0, MAX_HEIGHT / 2), null).getY());
+        new Point2D.Double(
+            20, tx.transform(new Point2D.Double(0, MAX_ALTITUDE_IN_METERS / 2), null).getY());
 
     if (this.data != null) {
       title = this.data.getStationName();
@@ -142,7 +181,7 @@ public class SoundingPanel extends JPanel {
       while (i.hasNext()) {
         SoundingPoint sp = (SoundingPoint) (i.next());
 
-        if (sp.getMetres() < MAX_HEIGHT) {
+        if (sp.getMetres() < MAX_ALTITUDE_IN_METERS) {
           double valY = sp.getMetres();
           double temp = sp.getTemperature();
           double dew = sp.getDewpoint();
@@ -168,7 +207,7 @@ public class SoundingPanel extends JPanel {
         DerivedPoint dp = (DerivedPoint) (j.next());
         double parcelTemp = dp.getLiftedParcelTemp();
 
-        if (dp.getSampleHeight() < MAX_HEIGHT && parcelTemp >= MIN_TEMP) {
+        if (dp.getSampleHeight() < MAX_ALTITUDE_IN_METERS && parcelTemp >= MIN_TEMP) {
           double valY = dp.getSampleHeight();
 
           Point2D transformedTemp = new Point2D.Double();
@@ -245,11 +284,12 @@ public class SoundingPanel extends JPanel {
 
       TextLayout layout = new TextLayout("Altitude (m)", g2.getFont(), g2.getFontRenderContext());
 
+      final AffineTransform orig = g2.getTransform();
+
       g2.translate(labelLocY.getX(), labelLocY.getY());
       g2.rotate(-Math.PI / 2);
       layout.draw(g2, -layout.getAdvance() / 2, 0);
 
-      AffineTransform orig = g2.getTransform();
       g2.setTransform(orig);
     }
 
@@ -272,7 +312,7 @@ public class SoundingPanel extends JPanel {
           labelX, (int) (labelLocX.getX() - bounds.getWidth() / 2f), (int) (labelLocX.getY()));
     }
 
-    Stroke orig = g2.getStroke();
+    final Stroke orig = g2.getStroke();
     g2.setStroke(new BasicStroke(2));
     g2.setColor(this.TEMP_COLOUR);
     g2.draw(new Line2D.Double(getWidth() - 125, 50, getWidth() - 100, 50));

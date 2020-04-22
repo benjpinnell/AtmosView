@@ -458,6 +458,12 @@ public class BarPanel extends JPanel {
           counterclockwiseFromXAxis += 360;
         }
 
+        double speed = p.getSpeed();
+        double radians = Math.toRadians(counterclockwiseFromXAxis);
+        final double diffX = (speed / WIND_DOWNSCALE) * Math.cos(radians);
+        // negative because the Y axis is upside down in drawing
+        final double diffY = (speed / WIND_DOWNSCALE) * -Math.sin(radians);
+
         Point2D loc = new Point2D.Double();
         tx.transform(new Point2D.Double(MAX_X, clampedHeight), loc);
         loc.setLocation(loc.getX() + WIND_OFFSET, loc.getY());
@@ -468,12 +474,6 @@ public class BarPanel extends JPanel {
                 loc.getY() - PIVOT_SIZE / 2f,
                 PIVOT_SIZE,
                 PIVOT_SIZE));
-
-        double speed = p.getSpeed();
-        double radians = Math.toRadians(counterclockwiseFromXAxis);
-        double diffX = (speed / WIND_DOWNSCALE) * Math.cos(radians);
-        // negative because the Y axis is upside down in drawing
-        double diffY = (speed / WIND_DOWNSCALE) * -Math.sin(radians);
 
         windLines.add(
             new Line2D.Double(loc.getX(), loc.getY(), loc.getX() + diffX, loc.getY() + diffY));
@@ -526,13 +526,15 @@ public class BarPanel extends JPanel {
     }
 
     if (labelLocY != null) {
+      final TextLayout layout =
+          new TextLayout("Altitude (m)", g2.getFont(), g2.getFontRenderContext());
+      final AffineTransform orig = g2.getTransform();
+
       g2.setColor(AXIS_COLOUR);
       g2.translate(labelLocY.getX(), labelLocY.getY());
       g2.rotate(-Math.PI / 2);
 
-      TextLayout layout = new TextLayout("Altitude (m)", g2.getFont(), g2.getFontRenderContext());
       layout.draw(g2, -layout.getAdvance() / 2, 0);
-      AffineTransform orig = g2.getTransform();
       g2.setTransform(orig);
     }
 
@@ -652,12 +654,12 @@ public class BarPanel extends JPanel {
     }
 
     if (stratusLayerLines != null) {
+      final Stroke orig = g2.getStroke();
       g2.setStroke(new BasicStroke(5));
       g2.setColor(STRATUS_COLOUR);
       for (int i = 0; i < stratusLayerLines.size(); i++) {
         g2.draw(stratusLayerLines.get(i));
       }
-      Stroke orig = g2.getStroke();
       g2.setStroke(orig);
     }
 
