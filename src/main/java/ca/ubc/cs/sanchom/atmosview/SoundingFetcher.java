@@ -55,7 +55,6 @@ public class SoundingFetcher {
         throw new IOException("Bad http response from server: " + response);
       }
 
-      httpConnection.getInputStream();
       BufferedReader in =
           new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
 
@@ -190,7 +189,7 @@ public class SoundingFetcher {
         throw new IOException("Bad HTTP response from server: " + response);
       }
 
-      httpConnection.getInputStream();
+      // httpConnection.getInputStream();
       BufferedReader in =
           new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
 
